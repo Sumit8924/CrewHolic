@@ -76,6 +76,7 @@
 </div>
 
 <script>
+const API_URL = "https://crewholic.onrender.com/api";
 function loadOrders() {
     const orders = JSON.parse(localStorage.getItem('digitalmarketing_orders') || '[]');
     document.getElementById('totalRequests').textContent = orders.length;
