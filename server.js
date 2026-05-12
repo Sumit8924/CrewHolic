@@ -46,17 +46,21 @@ transporter.verify((error, success) => {
 let otpStore = {}; 
 
 // ================= MONGODB =================
+const PORT = process.env.PORT || 5000;
+
 mongoose.connect(MONGO_URI)
 .then(() => {
+
     console.log("✅ MongoDB Connected");
 
-    app.listen(5000, () => {
-        console.log("🚀 Server running on http://localhost:5000");
+    app.listen(PORT, () => {
+
+        console.log(`🚀 Server running on port ${PORT}`);
+
     });
 
 })
 .catch(err => console.log("❌ DB Error:", err));
-
 
 // ================= SCHEMA =================
 const userSchema = new mongoose.Schema({
