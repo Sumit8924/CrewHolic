@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const { Resend } = require("resend");
 const Order = require("./backend/models/Order");
 const orderRoutes = require("./backend/routes/orderRoutes");
 
@@ -23,6 +23,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const MONGO_URI = process.env.MONGO_URI;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================= MAIL TRANSPORT =================
 const transporter = nodemailer.createTransport({
@@ -188,7 +189,7 @@ app.post('/api/register', async (req, res) => {
 
         // Welcome Email
 try {
-    await transporter.sendMail({
+    await resend.emails.send({
         from: `"CREWHOLIC" <${EMAIL_USER}>`,
         to: email,
         subject: "🎉 Welcome to CREWHOLIC",
