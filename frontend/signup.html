@@ -538,7 +538,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
             localStorage.setItem('user', JSON.stringify(userData));
             sessionStorage.setItem('user', JSON.stringify(userData));
             
-            showSuccessAndRedirect("Account Created Successfully!", name, "index.html");
+            showSuccessAndRedirect("Account Created Successfully!", name, "home.html");
         } else {
             showMessage(data.msg || 'Signup failed', true);
             setLoading(false);
@@ -548,7 +548,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         const userData = { name, email };
         localStorage.setItem('user', JSON.stringify(userData));
         sessionStorage.setItem('user', JSON.stringify(userData));
-        showSuccessAndRedirect("Demo: Account Created Successfully!", name, "index.html");
+        showSuccessAndRedirect("Demo: Account Created Successfully!", name, "home.html");
     }
 });
 

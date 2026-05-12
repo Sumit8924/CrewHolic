@@ -191,7 +191,7 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
                 <ul class="navbar-nav mb-2 mb-lg-0 gap-2 glass-nav px-3 py-2 align-items-center">
-                    <li class="nav-item"><a href="index.html" class="nav-btn-glow"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a href="home.html" class="nav-btn-glow"><i class="fas fa-home"></i> Home</a></li>
                     <li class="nav-item"><a href="service.html" class="nav-btn-glow"><i class="fas fa-cogs"></i> Services</a></li>
                     <li class="nav-item"><a href="admin-dashboard.html" class="nav-btn-glow"><i class="fas fa-user-shield"></i> Dashboard</a></li>
                     <li class="nav-item"><button class="btn btn-sm" id="logoutBtn" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; border: none;"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
@@ -645,7 +645,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     sessionStorage.removeItem('adminLoggedIn');
     window.location.href = 'admin.html'; 
 });
-document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'index.html');
+document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'home.html');
 document.querySelectorAll('.social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC')));
 
 window.addEventListener('load', () => { 
