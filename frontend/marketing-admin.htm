@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Admin | CREWHOLIC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #050510 0%, #0a0a2a 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(15, 18, 40, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: rgba(242,153,74,0.2); color: #F2994A; }
+        .status-approved { background: rgba(76,175,80,0.2); color: #4CAF50; }
+        .btn-sm-grad {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: white;
+            border: none;
+            font-size: 12px;
+        }
+        .order-card {
+            background: rgba(10,12,25,0.6);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFF, #9B51E0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center">
+            <div><h2><i class="fas fa-chart-line me-2"></i> Digital Marketing Admin</h2><p class="text-white-50">Manage marketing campaign requests</p></div>
+            <span class="badge bg-primary px-3 py-2">Marketing Access</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4"><div class="glass-card text-center"><div class="stat-number" id="totalRequests">0</div><p>Total Requests</p></div></div>
+        <div class="col-md-4 mb-4"><div class="glass-card text-center"><div class="stat-number" id="pendingRequests">0</div><p>Pending Approval</p></div></div>
+        <div class="col-md-4 mb-4"><div class="glass-card text-center"><div class="stat-number" id="totalBudget">$0</div><p>Total Budget</p></div></div>
+    </div>
+
+    <div class="glass-card">
+        <h4 class="mb-3"><i class="fas fa-list me-2"></i>Marketing Requests</h4>
+        <div id="ordersList"></div>
+    </div>
+</div>
+
+<script>
+function loadOrders() {
+    const orders = JSON.parse(localStorage.getItem('digitalmarketing_orders') || '[]');
+    document.getElementById('totalRequests').textContent = orders.length;
+    document.getElementById('pendingRequests').textContent = orders.filter(o => o.status === 'pending').length;
+    document.getElementById('totalBudget').textContent = `$${orders.reduce((sum, o) => sum + (o.budget || 0), 0)}`;
+    
+    const container = document.getElementById('ordersList');
+    if(orders.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-white-50">No marketing requests yet</div>';
+        return;
+    }
+    
+    container.innerHTML = orders.map(order => `
+        <div class="order-card">
+            <div class="d-flex justify-content-between flex-wrap">
+                <div>
+                    <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                    <h6 class="mt-2 mb-1">#${order.orderId}</h6>
+                    <p><strong>${order.customerName}</strong><br><small>${order.customerEmail}</small><br>Goal: ${order.marketingGoal?.substring(0, 60) || 'N/A'}<br>Budget: $${order.budget || 0}/mo<br>Platforms: ${order.platform ? order.platform.join(', ') : 'N/A'}</p>
+                </div>
+                <div>
+                    ${order.status === 'pending' ? `<button class="btn-sm-grad" onclick="approveOrder('${order.id}')"><i class="fas fa-check"></i> Approve</button>` : `<span class="text-success"><i class="fas fa-check-circle"></i> Approved</span>`}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function approveOrder(id) {
+    const orders = JSON.parse(localStorage.getItem('digitalmarketing_orders') || '[]');
+    const index = orders.findIndex(o => o.id === id);
+    if(index !== -1) {
+        orders[index].status = 'approved';
+        localStorage.setItem('digitalmarketing_orders', JSON.stringify(orders));
+        
+        const mainOrders = JSON.parse(localStorage.getItem('crewholic_orders') || '[]');
+        const mainIndex = mainOrders.findIndex(o => o.id === id);
+        if(mainIndex !== -1) mainOrders[mainIndex].status = 'approved';
+        localStorage.setItem('crewholic_orders', JSON.stringify(mainOrders));
+        
+        loadOrders();
+        alert('Order approved successfully!');
+    }
+}
+
+window.addEventListener('load', loadOrders);
+</script>
+</body>
+</html>

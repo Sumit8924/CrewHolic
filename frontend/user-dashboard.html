@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CREWHOLIC — My Dashboard | Track Orders, Payments & Invoices</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #050510 0%, #0a0a2a 50%, #050510 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.1; }
+            90% { opacity: 0.1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        .glass-card {
+            background: rgba(15, 18, 40, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(155, 81, 224, 0.5);
+            box-shadow: 0 10px 30px -12px rgba(155, 81, 224, 0.3);
+        }
+        .navbar-glass {
+            background: rgba(15, 18, 40, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-grad {
+            background: linear-gradient(95deg, #9B51E0 0%, #F2994A 100%);
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-grad:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 81, 224, 0.4);
+            color: white;
+        }
+        .btn-outline-grad {
+            background: transparent;
+            border: 1px solid #9B51E0;
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-grad:hover {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            border-color: transparent;
+            color: white;
+        }
+        .btn-sm-grad {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            padding: 6px 16px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            border: none;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFF, #9B51E0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: rgba(242, 153, 74, 0.2); color: #F2994A; }
+        .status-approved { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .status-rejected { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .status-paid { background: rgba(33, 150, 243, 0.2); color: #2196F3; }
+        .status-processing { background: rgba(155, 81, 224, 0.2); color: #9B51E0; }
+        .status-completed { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+
+        .order-card {
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .order-card:hover { transform: translateY(-5px); }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .dropdown-menu-custom {
+            background: rgba(15, 18, 40, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+        .dropdown-menu-custom a {
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .dropdown-menu-custom a:hover { background: rgba(155, 81, 224, 0.3); }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(17, 19, 30, 0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border-left: 4px solid #4CAF50;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .modal-glass {
+            background: rgba(15, 18, 40, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+        }
+
+        .payment-method {
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .payment-method:hover, .payment-method.selected {
+            border-color: #9B51E0;
+            background: rgba(155,81,224,0.1);
+        }
+        .form-control, .form-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+        }
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #9B51E0;
+            box-shadow: 0 0 0 3px rgba(155, 81, 224, 0.2);
+            color: white;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            color: #B4BDE8;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<nav class="navbar navbar-glass fixed-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand text-white d-flex align-items-center gap-2" href="index.html">
+            <img class="brand-logo" src="skr.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%239B51E0\'/%3E%3Ctext x=\'50\' y=\'68\' text-anchor=\'middle\' font-size=\'28\' fill=\'white\'%3EC%3C/text%3E%3C/svg%3E'">
+            <span class="fw-bold">CREWHOLIC | My Dashboard</span>
+        </a>
+        <div class="d-flex gap-3 align-items-center">
+            <div id="authSection"></div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4" style="margin-top: 80px;">
+    <!-- Welcome Section -->
+    <div class="glass-card p-4 mb-4">
+        <h2 id="welcomeMessage">Welcome back!</h2>
+        <p class="text-white-50 mb-0">Track your orders, make payments, and download invoices.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3">
+                <div class="d-flex justify-content-between">
+                    <div><p class="text-white-50 mb-1">Total Orders</p><div class="stat-number" id="totalOrders">0</div></div>
+                    <i class="fas fa-shopping-bag fa-2x" style="color: #9B51E0;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3">
+                <div class="d-flex justify-content-between">
+                    <div><p class="text-white-50 mb-1">Pending Approval</p><div class="stat-number" id="pendingOrders">0</div></div>
+                    <i class="fas fa-clock fa-2x" style="color: #F2994A;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3">
+                <div class="d-flex justify-content-between">
+                    <div><p class="text-white-50 mb-1">Approved / Paid</p><div class="stat-number" id="approvedOrders">0</div></div>
+                    <i class="fas fa-check-circle fa-2x" style="color: #4CAF50;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3">
+                <div class="d-flex justify-content-between">
+                    <div><p class="text-white-50 mb-1">Total Spent</p><div class="stat-number" id="totalSpent">$0</div></div>
+                    <i class="fas fa-dollar-sign fa-2x" style="color: #FFD700;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="glass-card p-3 mb-4">
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="tab-btn active" onclick="showTab('orders')"><i class="fas fa-list me-2"></i>My Orders</button>
+            <button class="tab-btn" onclick="showTab('invoices')"><i class="fas fa-file-invoice me-2"></i>Invoices</button>
+        </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="ordersTab">
+        <div class="glass-card p-4">
+            <h4 class="mb-4"><i class="fas fa-cube me-2"></i> My Orders</h4>
+            <div id="ordersContainer">
+                <div class="text-center text-white-50 py-5">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p>No orders found. <a href="service.html" style="color:#F2994A;">Browse services</a> to place an order!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoices Tab -->
+    <div id="invoicesTab" style="display: none;">
+        <div class="glass-card p-4">
+            <h4 class="mb-4"><i class="fas fa-file-invoice-dollar me-2"></i> My Invoices</h4>
+            <div id="invoicesContainer">
+                <div class="text-center text-white-50 py-5">
+                    <i class="fas fa-receipt fa-3x mb-3"></i>
+                    <p>No invoices yet. Complete payment to generate invoice.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-glass text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderModalBody"></div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-outline-grad" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-glass text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fas fa-credit-card me-2"></i>Make Payment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentOrderInfo"></div>
+                <hr>
+                <h6 class="mb-3">Select Payment Method</h6>
+                <div class="payment-method" data-method="card">
+                    <i class="fab fa-cc-visa"></i> <i class="fab fa-cc-mastercard"></i> <i class="fab fa-cc-amex"></i>
+                    <span class="ms-2">Credit / Debit Card</span>
+                </div>
+                <div class="payment-method" data-method="upi">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span class="ms-2">UPI (Google Pay, PhonePe, Paytm)</span>
+                </div>
+                <div id="cardDetails" style="display: none;" class="mt-3">
+                    <div class="mb-3"><label>Card Number</label><input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
+                    <div class="row"><div class="col-6"><label>Expiry Date</label><input type="text" class="form-control" id="expiryDate" placeholder="MM/YY"></div><div class="col-6"><label>CVV</label><input type="password" class="form-control" id="cvv" placeholder="123"></div></div>
+                </div>
+                <div id="upiDetails" style="display: none;" class="mt-3">
+                    <div class="mb-3"><label>UPI ID</label><input type="text" class="form-control" id="upiId" placeholder="username@okhdfcbank"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-outline-grad" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-grad" id="confirmPaymentBtn">Pay Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-glass text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i>Invoice</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="invoiceBody"></div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-outline-grad" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn-grad" id="downloadInvoiceBtn"><i class="fas fa-download me-2"></i>Download PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentUser = null;
+let userOrders = [];
+let currentOrderForPayment = null;
+let currentInvoiceOrder = null;
+let selectedPaymentMethod = 'card';
+
+function loadUser() {
+    const user = localStorage.getItem('user');
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUser = JSON.parse(user);
+    document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${currentUser.name || currentUser.email.split('@')[0]}! 👋`;
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const authSection = document.getElementById('authSection');
+    if (!authSection) return;
+    const name = currentUser.name || currentUser.email.split('@')[0];
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    authSection.innerHTML = `
+        <div class="dropdown">
+            <div class="d-flex align-items-center gap-2" style="cursor: pointer;" data-bs-toggle="dropdown">
+                <div class="user-avatar">${initials}</div>
+                <span class="text-white">${name.split(' ')[0]}</span>
+                <i class="fas fa-chevron-down text-white-50"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-custom">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="service.html"><i class="fas fa-cogs"></i> Services</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    `;
+}
+
+function logout() {
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    window.location.href = 'index.html';
+}
+
+function loadOrders() {
+    const allOrders = JSON.parse(localStorage.getItem('crewholic_orders') || '[]');
+    userOrders = allOrders.filter(order => order.customerEmail === currentUser.email);
+    updateStats();
+    displayOrders();
+    displayInvoices();
+}
+
+function updateStats() {
+    const total = userOrders.length;
+    const pending = userOrders.filter(o => o.status === 'pending').length;
+    const approved = userOrders.filter(o => o.status === 'approved' || o.paymentStatus === 'paid').length;
+    const totalSpent = userOrders.filter(o => o.paymentStatus === 'paid').reduce((sum, o) => sum + (o.budget || 0), 0);
+    document.getElementById('totalOrders').textContent = total;
+    document.getElementById('pendingOrders').textContent = pending;
+    document.getElementById('approvedOrders').textContent = approved;
+    document.getElementById('totalSpent').textContent = `$${totalSpent.toLocaleString()}`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function displayOrders() {
+    const container = document.getElementById('ordersContainer');
+    if (userOrders.length === 0) {
+        container.innerHTML = `<div class="text-center py-5"><i class="fas fa-inbox fa-3x mb-3"></i><p>No orders found. <a href="service.html" style="color:#F2994A;">Browse services</a> to place an order!</p></div>`;
+        return;
+    }
+    container.innerHTML = userOrders.map(order => {
+        let actionButton = '';
+        if (order.status === 'pending') {
+            actionButton = `<span class="status-badge status-pending">⏳ Awaiting Admin Approval</span>`;
+        } else if (order.status === 'approved' && order.paymentStatus !== 'paid') {
+            actionButton = `<button class="btn-sm-grad" onclick="event.stopPropagation(); openPaymentModal('${order.id}')"><i class="fas fa-credit-card me-1"></i> Pay Now</button>`;
+        } else if (order.paymentStatus === 'paid') {
+            actionButton = `<span class="status-badge status-paid">💰 Payment Completed</span>`;
+        } else if (order.status === 'rejected') {
+            actionButton = `<span class="status-badge status-rejected">❌ Rejected</span>`;
+        }
+        return `
+            <div class="order-card glass-card" onclick="viewOrderDetails('${order.id}')">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <h6 class="mb-1">${escapeHtml(order.serviceName)}</h6>
+                        <small class="text-white-50">Order #${order.id.slice(-8)}</small>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                        ${order.paymentStatus === 'paid' ? '<span class="status-badge status-paid ms-1">PAID</span>' : ''}
+                    </div>
+                    <div class="col-md-2">
+                        <strong>$${(order.budget || 0).toLocaleString()}</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-white-50">${formatDate(order.date)}</small>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        ${actionButton}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function viewOrderDetails(orderId) {
+    const order = userOrders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    document.getElementById('orderModalBody').innerHTML = `
+        <div class="mb-3">
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+                <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                ${order.paymentStatus === 'paid' ? '<span class="status-badge status-paid">PAID</span>' : ''}
+            </div>
+            <h5>${escapeHtml(order.serviceName)}</h5>
+            <p class="text-white-50">Order #${order.id} | Submitted on ${formatDate(order.date)}</p>
+            <hr>
+            <div class="row">
+                <div class="col-md-6"><strong>Customer:</strong> ${escapeHtml(order.customerName)}</div>
+                <div class="col-md-6"><strong>Email:</strong> ${escapeHtml(order.customerEmail)}</div>
+                <div class="col-md-6"><strong>Phone:</strong> ${order.customerPhone || 'N/A'}</div>
+                <div class="col-md-6"><strong>Budget:</strong> $${(order.budget || 0).toLocaleString()}</div>
+                <div class="col-md-6"><strong>Timeline:</strong> ${order.timeline || 'Not specified'}</div>
+                ${order.approvedAt ? `<div class="col-md-6"><strong>Approved on:</strong> ${formatDate(order.approvedAt)}</div>` : ''}
+            </div>
+            <hr>
+            <h6>Requirements</h6>
+            <p class="text-white-50">${escapeHtml(order.requirements || 'No details provided')}</p>
+            ${order.adminNotes ? `<hr><h6>Admin Notes</h6><p class="text-white-50">${escapeHtml(order.adminNotes)}</p>` : ''}
+            ${order.status === 'rejected' && order.rejectionReason ? `<hr><h6>Rejection Reason</h6><p class="text-danger">${escapeHtml(order.rejectionReason)}</p>` : ''}
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('orderModal')).show();
+}
+
+function displayInvoices() {
+    const paidOrders = userOrders.filter(o => o.paymentStatus === 'paid');
+    const container = document.getElementById('invoicesContainer');
+    if (paidOrders.length === 0) {
+        container.innerHTML = `<div class="text-center py-5"><i class="fas fa-receipt fa-3x mb-3"></i><p>No invoices yet. Complete payment to generate invoice.</p></div>`;
+        return;
+    }
+    container.innerHTML = paidOrders.map(order => `
+        <div class="order-card glass-card">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <h6 class="mb-1">${escapeHtml(order.serviceName)}</h6>
+                    <small class="text-white-50">Invoice #INV-${order.id.slice(-8)}</small>
+                </div>
+                <div class="col-md-3">
+                    <span class="status-badge status-paid">PAID</span>
+                    <small class="text-white-50 d-block">${order.paidAt ? formatDate(order.paidAt) : formatDate(order.date)}</small>
+                </div>
+                <div class="col-md-2">
+                    <strong>$${(order.budget || 0).toLocaleString()}</strong>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn-sm-grad" onclick="viewInvoice('${order.id}')"><i class="fas fa-eye me-1"></i> View Invoice</button>
+                    <button class="btn-outline-grad btn-sm" style="padding: 6px 12px; font-size: 12px;" onclick="downloadInvoicePDF('${order.id}')"><i class="fas fa-download me-1"></i> PDF</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function viewInvoice(orderId) {
+    const order = userOrders.find(o => o.id === orderId);
+    if (!order) return;
+    currentInvoiceOrder = order;
+    showInvoiceModal(order);
+}
+
+function showInvoiceModal(order) {
+    const invoiceHtml = `
+        <div id="invoiceContent" style="padding: 30px; background: white; color: #1a1a2e; border-radius: 16px;">
+            <div style="background: linear-gradient(135deg, #9B51E0, #F2994A); padding: 20px; border-radius: 16px; margin-bottom: 20px; color: white; text-align: center;">
+                <h2 style="margin: 0;">CREWHOLIC</h2>
+                <p style="margin: 0; opacity: 0.9;">Fusion-Powered Digital Agency</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div><h4>INVOICE</h4><p><strong>Invoice #:</strong> INV-${order.id.slice(-8)}<br><strong>Date:</strong> ${order.paidAt ? formatDate(order.paidAt) : formatDate(order.date)}</p></div>
+                <div style="text-align: right;"><p><strong>Transaction ID:</strong><br>${order.transactionId || 'ONLINE-' + order.id.slice(-6)}</p></div>
+            </div>
+            <div style="margin-bottom: 30px;"><h5>Bill To:</h5><p><strong>${escapeHtml(order.customerName)}</strong><br>${escapeHtml(order.customerEmail)}<br>${order.customerPhone || 'N/A'}</p></div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;"><thead><tr style="background: #f0f0f0;"><th style="padding: 12px; text-align: left;">Description</th><th style="padding: 12px; text-align: right;">Amount</th></tr></thead>
+            <tbody><tr><td style="padding: 12px; border-bottom: 1px solid #ddd;">${escapeHtml(order.serviceName)}<br><small style="color: #666;">${escapeHtml(order.requirements?.substring(0, 100))}${order.requirements?.length > 100 ? '...' : ''}</small></td>
+            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">$${(order.budget || 0).toLocaleString()}</td></tr></tbody>
+            <tfoot><tr><td style="padding: 12px; text-align: right;"><strong>Total</strong></td><td style="padding: 12px; text-align: right;"><strong style="color: #4CAF50; font-size: 20px;">$${(order.budget || 0).toLocaleString()}</strong></td></tr></tfoot></table>
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;"><p style="color: #666; font-size: 12px;">Thank you for choosing CREWHOLIC!</p></div>
+        </div>
+    `;
+    document.getElementById('invoiceBody').innerHTML = invoiceHtml;
+    new bootstrap.Modal(document.getElementById('invoiceModal')).show();
+}
+
+function downloadInvoicePDF(orderId) {
+    const order = userOrders.find(o => o.id === orderId);
+    if (!order) return;
+    const element = document.createElement('div');
+    element.innerHTML = `
+        <div style="padding: 30px; background: white; color: #1a1a2e;">
+            <div style="background: linear-gradient(135deg, #9B51E0, #F2994A); padding: 20px; text-align: center; color: white;"><h2>CREWHOLIC</h2><p>Fusion-Powered Digital Agency</p></div>
+            <h3>INVOICE</h3>
+            <p><strong>Invoice #:</strong> INV-${order.id.slice(-8)}<br><strong>Date:</strong> ${order.paidAt ? formatDate(order.paidAt) : formatDate(order.date)}</p>
+            <h5>Bill To:</h5><p>${escapeHtml(order.customerName)}<br>${escapeHtml(order.customerEmail)}</p>
+            <table style="width:100%; border-collapse:collapse;"><tr style="background:#f0f0f0;"><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:right;">Amount</th></tr>
+            <tr><td style="padding:10px;">${escapeHtml(order.serviceName)}</td><td style="padding:10px; text-align:right;">$${(order.budget || 0).toLocaleString()}</td></tr>
+            <tr><td style="padding:10px; text-align:right;"><strong>Total</strong></td><td style="padding:10px; text-align:right;"><strong>$${(order.budget || 0).toLocaleString()}</strong></td></tr></table>
+            <p style="margin-top:30px; text-align:center;">Thank you for choosing CREWHOLIC!</p>
+        </div>
+    `;
+    html2pdf().set({ margin: 0.5, filename: `Invoice_${order.id.slice(-8)}.pdf` }).from(element).save();
+    showMessage('Invoice downloaded successfully!');
+}
+
+function openPaymentModal(orderId) {
+    const order = userOrders.find(o => o.id === orderId);
+    if (!order) return;
+    currentOrderForPayment = order;
+    document.getElementById('paymentOrderInfo').innerHTML = `<div class="text-center mb-3"><h6>${escapeHtml(order.serviceName)}</h6><h3 style="color:#F2994A;">$${(order.budget || 0).toLocaleString()}</h3></div>`;
+    selectedPaymentMethod = 'card';
+    document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+    document.querySelector('.payment-method[data-method="card"]').classList.add('selected');
+    document.getElementById('cardDetails').style.display = 'block';
+    document.getElementById('upiDetails').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+
+document.querySelectorAll('.payment-method').forEach(method => {
+    method.addEventListener('click', () => {
+        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+        method.classList.add('selected');
+        selectedPaymentMethod = method.getAttribute('data-method');
+        document.getElementById('cardDetails').style.display = selectedPaymentMethod === 'card' ? 'block' : 'none';
+        document.getElementById('upiDetails').style.display = selectedPaymentMethod === 'upi' ? 'block' : 'none';
+    });
+});
+
+document.getElementById('confirmPaymentBtn').addEventListener('click', () => {
+    if (!currentOrderForPayment) return;
+    if (selectedPaymentMethod === 'card') {
+        if (!document.getElementById('cardNumber').value || !document.getElementById('expiryDate').value || !document.getElementById('cvv').value) {
+            alert('Please fill all card details');
+            return;
+        }
+    } else if (selectedPaymentMethod === 'upi') {
+        if (!document.getElementById('upiId').value) { alert('Please enter UPI ID'); return; }
+    }
+    currentOrderForPayment.paymentStatus = 'paid';
+    currentOrderForPayment.paidAt = new Date().toISOString();
+    currentOrderForPayment.transactionId = 'TXN-' + Date.now();
+    const allOrders = JSON.parse(localStorage.getItem('crewholic_orders') || '[]');
+    const index = allOrders.findIndex(o => o.id === currentOrderForPayment.id);
+    if (index !== -1) {
+        allOrders[index] = currentOrderForPayment;
+        localStorage.setItem('crewholic_orders', JSON.stringify(allOrders));
+    }
+    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+    showMessage(`✅ Payment successful! Invoice generated.`);
+    loadOrders();
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('expiryDate').value = '';
+    document.getElementById('cvv').value = '';
+    document.getElementById('upiId').value = '';
+});
+
+document.getElementById('downloadInvoiceBtn')?.addEventListener('click', () => {
+    if (currentInvoiceOrder) downloadInvoicePDF(currentInvoiceOrder.id);
+});
+
+function showTab(tab) {
+    document.getElementById('ordersTab').style.display = tab === 'orders' ? 'block' : 'none';
+    document.getElementById('invoicesTab').style.display = tab === 'invoices' ? 'block' : 'none';
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    if (tab === 'orders') document.querySelector('.tab-btn:first-child').classList.add('active');
+    else document.querySelector('.tab-btn:last-child').classList.add('active');
+}
+
+function showMessage(msg) {
+    let existing = document.querySelector('.toast-message');
+    if(existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.width = `${Math.random() * 5 + 2}px`;
+        particle.style.height = particle.style.width;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        container.appendChild(particle);
+    }
+}
+
+window.addEventListener('load', () => {
+    createParticles();
+    loadUser();
+    loadOrders();
+});
+</script>
+</body>
+</html>

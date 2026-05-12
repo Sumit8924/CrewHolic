@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CREWHOLIC — Premium Equipment Rental | Professional Gear</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050510;
+            color: #FFFFFF;
+            line-height: 1.2;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        @media (min-width: 1024px) {
+            .cursor {
+                width: 20px;
+                height: 20px;
+                background: linear-gradient(135deg, #9B51E0, #F2994A);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 20px rgba(155,81,224,0.8);
+                mix-blend-mode: difference;
+            }
+            .cursor-follower {
+                width: 40px;
+                height: 40px;
+                border: 2px solid rgba(155,81,224,0.6);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9998;
+                transform: translate(-50%, -50%);
+            }
+            .cursor-glow {
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(155,81,224,0.12) 0%, rgba(242,153,74,0.05) 50%, transparent 70%);
+                position: fixed;
+                pointer-events: none;
+                z-index: 9997;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+            }
+            body { cursor: none; }
+        }
+        @media (max-width: 1023px) {
+            .cursor, .cursor-follower, .cursor-glow { display: none; }
+            body { cursor: auto; }
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 30%, rgba(10, 15, 30, 0.4) 0%, #020208 98%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .container-custom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+        .glass-nav {
+            background: rgba(10, 12, 25, 0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 80px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 5px 8px;
+        }
+        .logo-img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 15px rgba(155,81,224,0.4));
+        }
+        .nav-btn-glow {
+            background: transparent;
+            border: none;
+            color: #D0D5F0;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 20px;
+            border-radius: 60px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            transition: left 0.4s ease;
+            z-index: -1;
+            border-radius: 60px;
+        }
+        .nav-btn-glow:hover::before { left: 0; }
+        .nav-btn-glow:hover { color: white; transform: translateY(-2px); }
+        .btn-primary-grad {
+            background: linear-gradient(95deg, #9B51E0 0%, #F2994A 100%);
+            padding: 12px 32px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: none;
+        }
+        .main-title {
+            font-size: clamp(42px, 9vw, 92px);
+            font-weight: 800;
+            line-height: 1.05;
+            background: linear-gradient(135deg, #FFFFFF, #D0D5FF, #9B51E0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .service-badge {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #C0AAFF;
+            background: rgba(155,81,224,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        .glass-card {
+            background: rgba(12,15,28,0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.4s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(155,81,224,0.7);
+        }
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17,19,30,0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 14px;
+            border: 1px solid rgba(155,81,224,0.7);
+            z-index: 10000;
+        }
+        .footer-links a {
+            color: #8F99CC;
+            font-size: 20px;
+            transition: 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .footer-links a:hover { color: #F2994A; transform: translateY(-5px); }
+        @media (max-width: 768px) {
+            .container-custom { padding: 0 16px; }
+            .glass-nav { background: rgba(10,12,25,0.85); }
+        }
+        .services-hero { padding: 40px 0 30px; text-align: center; }
+        .services-main-title {
+            font-size: clamp(48px, 9vw, 96px);
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF, #9B51E0, #F2994A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .service-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+            background: rgba(10, 12, 20, 0.5);
+            border-radius: 48px;
+            padding: 40px 48px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+        .service-block:hover {
+            border-color: rgba(155,81,224,0.5);
+            transform: translateY(-8px);
+        }
+        .service-info h2 { font-size: 32px; font-weight: 800; margin-bottom: 20px; background: linear-gradient(125deg, #FFF, #B5C0FF); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .service-icon-large { font-size: 100px; filter: drop-shadow(0 0 15px rgba(155,81,224,0.5)); background: linear-gradient(135deg, #9B51E0, #F2994A); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .stat-mini { display: inline-block; background: rgba(155,81,224,0.2); padding: 8px 16px; border-radius: 20px; margin-right: 10px; margin-top: 10px; }
+        
+        /* Enhanced Rental Form Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .rental-modal {
+            background: rgba(15, 18, 28, 0.98);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 32px;
+            padding: 40px;
+            width: 95%;
+            max-width: 1300px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+        .order-modal {
+            background: rgba(15, 18, 28, 0.98);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 32px;
+            padding: 40px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.active .rental-modal,
+        .modal-overlay.active .order-modal { transform: scale(1); }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: #9AA2C5;
+            font-size: 26px;
+            cursor: pointer;
+        }
+        
+        /* Enhanced Form Styles */
+        .premium-form-group {
+            margin-bottom: 24px;
+        }
+        .premium-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #C5CBF0;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        .premium-form-group label i {
+            margin-right: 8px;
+            color: #9B51E0;
+        }
+        .premium-form-group input,
+        .premium-form-group textarea,
+        .premium-form-group select {
+            width: 100%;
+            background: #1A1D2A;
+            border: 1.5px solid #2C3040;
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .premium-form-group input:focus,
+        .premium-form-group textarea:focus,
+        .premium-form-group select:focus {
+            outline: none;
+            border-color: #9B51E0;
+            box-shadow: 0 0 0 3px rgba(155,81,224,0.2);
+        }
+        .premium-form-group input[readonly] {
+            background: rgba(155,81,224,0.15);
+            border-color: #9B51E0;
+            color: #F2994A;
+            font-weight: 600;
+        }
+        
+        /* Order Summary Card */
+        .order-summary {
+            background: linear-gradient(135deg, rgba(155,81,224,0.15), rgba(242,153,74,0.1));
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(155,81,224,0.3);
+        }
+        .order-summary h4 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #F2994A;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        .summary-label { color: #B4BDE8; font-size: 14px; }
+        .summary-value { font-weight: 600; color: white; }
+        .summary-total { font-size: 18px; color: #F2994A; font-weight: 800; }
+        
+        .btn-submit {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155,81,224,0.4);
+        }
+        
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .equipment-category { margin-bottom: 30px; }
+        .equipment-category h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(155,81,224,0.3);
+        }
+        .equipment-item {
+            background: rgba(10, 12, 25, 0.6);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+        .equipment-item:hover {
+            transform: translateY(-5px);
+            border-color: #9B51E0;
+        }
+        .equipment-name { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .equipment-price { font-size: 22px; font-weight: 800; color: #F2994A; margin: 10px 0; }
+        .equipment-price small { font-size: 12px; font-weight: normal; color: #8F99CC; }
+        .equipment-specs { font-size: 12px; color: #B4BDE8; margin-bottom: 15px; }
+        .availability {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .available { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .limited { background: rgba(242, 153, 74, 0.2); color: #F2994A; }
+        .unavailable { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .rent-now-btn {
+            width: 100%;
+            margin-top: 15px;
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            border: none;
+            padding: 10px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .rent-now-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        @media (max-width: 900px) {
+            .service-block { grid-template-columns: 1fr; text-align: center; padding: 30px; }
+            .equipment-grid { grid-template-columns: 1fr; }
+            .order-modal { padding: 30px 20px; width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div id="canvas-container"></div>
+
+<div class="container-custom">
+    <nav class="navbar navbar-expand-lg py-3 position-relative" style="z-index: 20;">
+        <div class="container-fluid p-0">
+            <div class="logo-area d-flex align-items-center gap-2" id="logoContainer" style="cursor: pointer;">
+                <img id="dynamicLogo" class="logo-img" src="skr.png" alt="CREWHOLIC">
+                <span style="font-size:22px; font-weight:800; background:linear-gradient(135deg,#FFF,#9B51E0,#F2994A); -webkit-background-clip:text; background-clip:text; color:transparent;">CREWHOLIC</span>
+            </div>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="fas fa-bars fs-2" style="color:white;"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
+                <ul class="navbar-nav mb-2 mb-lg-0 gap-2 glass-nav px-3 py-2 align-items-center">
+                    <li class="nav-item"><a href="index.html" class="nav-btn-glow"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a href="service.html" class="nav-btn-glow"><i class="fas fa-cogs me-1"></i> Services</a></li>
+                    <li class="nav-item"><a href="portfolio.html" class="nav-btn-glow"><i class="fas fa-layer-group me-1"></i> Portfolio</a></li>
+                    <li class="nav-item"><a href="about.html" class="nav-btn-glow"><i class="fas fa-users me-1"></i> About</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-btn-glow"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                    <li class="nav-item" id="authSection">
+                        <a href="admin-dashboard.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;">
+                            <i class="fas fa-user-shield"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="services-hero">
+        <span class="service-badge"><i class="fas fa-crown"></i> FUSION ECOSYSTEM</span>
+        <h1 class="services-main-title">Services That <br>Redefine Digital</h1>
+        <p class="services-sub">End-to-end solutions powering brands in media, marketing, immersive events, and next-gen web development.</p>
+    </div>
+
+    <div class="services-detailed">
+        <div class="service-block" data-service="webdev" data-name="Web Development">
+            <div class="service-info">
+                <h2><i class="fas fa-code"></i> Web Development</h2>
+                <p>Custom websites, web applications, e-commerce platforms, and CMS solutions tailored to your business needs.</p>
+                <div><span class="stat-mini"><span class="num">100+</span> Websites</span><span class="stat-mini"><span class="num">99%</span> Satisfaction</span></div>
+                <div class="stat-mini"><i class="fas fa-tag"></i> Starting at $5,000</div>
+            </div>
+            <div class="service-visual"><i class="fas fa-laptop-code service-icon-large"></i></div>
+        </div>
+
+        <div class="service-block" data-service="digitalmarketing" data-name="Digital Marketing">
+            <div class="service-info">
+                <h2><i class="fas fa-chart-line"></i> Digital Marketing</h2>
+                <p>SEO, Social Media Marketing, PPC Campaigns, Content Marketing, Email Marketing, and Analytics to grow your brand online.</p>
+                <div><span class="stat-mini"><span class="num">500+</span> Campaigns</span><span class="stat-mini"><span class="num">4.8x</span> Avg ROI</span></div>
+                <div class="stat-mini"><i class="fas fa-tag"></i> Starting at $2,500/mo</div>
+            </div>
+            <div class="service-visual"><i class="fas fa-bullhorn service-icon-large"></i></div>
+        </div>
+
+        <div class="service-block" id="rentalServiceBlock" data-service="rental" data-name="Equipment Rental">
+            <div class="service-info">
+                <h2><i class="fas fa-camera"></i> Equipment Rental</h2>
+                <p>Professional camera, drone, gimbal, and audio equipment rental for photography, videography, and film production.</p>
+                <div><span class="stat-mini"><span class="num">50+</span> Equipment</span><span class="stat-mini"><span class="num">24/7</span> Support</span></div>
+                <div class="stat-mini"><i class="fas fa-tag"></i> Starting at $50/day</div>
+            </div>
+            <div class="service-visual"><i class="fas fa-camera-retro service-icon-large"></i></div>
+        </div>
+
+        <div class="service-block" data-service="event" data-name="Event Management">
+            <div class="service-info">
+                <h2><i class="fas fa-calendar-alt"></i> Event Management</h2>
+                <p>Corporate events, weddings, product launches, virtual events, and conference management with end-to-end planning.</p>
+                <div><span class="stat-mini"><span class="num">200+</span> Events</span><span class="stat-mini"><span class="num">10k+</span> Attendees</span></div>
+                <div class="stat-mini"><i class="fas fa-tag"></i> Custom Pricing</div>
+            </div>
+            <div class="service-visual"><i class="fas fa-calendar-check service-icon-large"></i></div>
+        </div>
+    </div>
+
+    <footer class="footer row mt-5 pt-5 pb-4 border-top border-light-subtle">
+        <div class="col-md-6 text-center text-md-start">
+            <div class="copyright">© 2025 CREWHOLIC — Fusion-Powered Digital Agency | Services Page</div>
+        </div>
+        <div class="col-md-6 text-center text-md-end footer-links">
+            <a class="social-link mx-2"><i class="fab fa-linkedin-in"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-instagram"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-x-twitter"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-behance"></i></a>
+        </div>
+    </footer>
+</div>
+
+<!-- Rental Inventory Modal -->
+<div id="rentalModal" class="modal-overlay">
+    <div class="rental-modal" style="position: relative;">
+        <button class="modal-close" id="closeRentalModalBtn">&times;</button>
+        <h2 style="margin-bottom: 20px;"><i class="fas fa-camera-retro me-2"></i> Equipment Rental Inventory</h2>
+        <p class="text-white-50 mb-4">Browse our professional equipment collection. Click "Rent Now" to submit your rental request.</p>
+        
+        <div class="equipment-category">
+            <h3><i class="fas fa-camera me-2"></i> Professional Cameras</h3>
+            <div class="equipment-grid" id="camerasGrid"></div>
+        </div>
+        
+        <div class="equipment-category">
+            <h3><i class="fas fa-video me-2"></i> Gimbals & Stabilizers</h3>
+            <div class="equipment-grid" id="gimbalsGrid"></div>
+        </div>
+        
+        <div class="equipment-category">
+            <h3><i class="fas fa-drone me-2"></i> Drones</h3>
+            <div class="equipment-grid" id="dronesGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Rental Order Modal -->
+<div id="orderModal" class="modal-overlay">
+    <div class="order-modal" style="position: relative;">
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+        
+        <div class="text-center mb-4">
+            <div class="service-badge d-inline-block mb-2">PREMIUM RENTAL</div>
+            <h2 id="modalTitle" style="font-size: 28px; margin-bottom: 5px;">Rent <span id="equipmentNameDisplay">Equipment</span></h2>
+            <p class="text-white-50">Fill in the details to complete your rental request</p>
+        </div>
+        
+        <form id="orderForm">
+            <input type="hidden" id="serviceType" value="rental">
+            <input type="hidden" id="serviceName" value="Equipment Rental">
+            <input type="hidden" id="selectedEquipment">
+            <input type="hidden" id="dailyRate" value="0">
+            
+            <!-- Customer Information Section -->
+            <div style="background: rgba(155,81,224,0.1); border-radius: 20px; padding: 20px; margin-bottom: 25px;">
+                <h4 style="color: #9B51E0; margin-bottom: 20px; font-size: 16px;"><i class="fas fa-user-circle"></i> Customer Information</h4>
+                <div class="premium-form-group">
+                    <label><i class="fas fa-user"></i> Full Name *</label>
+                    <input type="text" id="customerName" placeholder="John Doe" required>
+                </div>
+                <div class="premium-form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address *</label>
+                    <input type="email" id="customerEmail" placeholder="john@example.com" required>
+                </div>
+                <div class="premium-form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number *</label>
+                    <input type="tel" id="customerPhone" placeholder="+1 234 567 8900" required>
+                </div>
+            </div>
+            
+            <!-- Rental Details Section -->
+            <div style="background: rgba(242,153,74,0.1); border-radius: 20px; padding: 20px; margin-bottom: 25px;">
+                <h4 style="color: #F2994A; margin-bottom: 20px; font-size: 16px;"><i class="fas fa-calendar-alt"></i> Rental Details</h4>
+                <div class="premium-form-group">
+                    <label><i class="fas fa-camera"></i> Equipment to Rent *</label>
+                    <input type="text" id="selectedEquipmentDisplay" class="form-control" readonly style="background: rgba(155,81,224,0.2); font-weight: 600;">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="premium-form-group">
+                            <label><i class="fas fa-calendar-day"></i> Start Date *</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="premium-form-group">
+                            <label><i class="fas fa-clock"></i> Rental Duration (Days) *</label>
+                            <input type="number" id="rentalDays" min="1" value="1" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h4><i class="fas fa-receipt"></i> Order Summary</h4>
+                <div class="summary-row">
+                    <span class="summary-label">Daily Rate:</span>
+                    <span class="summary-value" id="displayDailyRate">$0</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Number of Days:</span>
+                    <span class="summary-value" id="displayDays">1</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Security Deposit:</span>
+                    <span class="summary-value">$200 (refundable)</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Amount (Rental + Deposit):</span>
+                    <span class="summary-value summary-total" id="totalAmountDisplay">$0</span>
+                </div>
+            </div>
+            
+            <div class="premium-form-group">
+                <label><i class="fas fa-clipboard-list"></i> Additional Instructions / Delivery Address</label>
+                <textarea id="requirements" rows="3" placeholder="Any special requirements, delivery address, or instructions..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Submit Rental Request</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ========== EQUIPMENT DATABASE ==========
+const equipmentInventory = {
+    cameras: [
+        { id: 1, name: "Canon EOS 200D Mark II", price: 700, specs: "24.1MP APS-C, 4K Video, Vari-angle Touchscreen, Dual Pixel CMOS AF", availability: "available", stock: 3 },
+        { id: 2, name: "Canon EOS 200D", price: 600, specs: "24.2MP APS-C, 1080p Video, Vari-angle Touchscreen, Beginner Friendly", availability: "available", stock: 2 },
+        { id: 3, name: "Canon M50", price: 1500, specs: "24.1MP APS-C, 4K Video, Electronic Viewfinder, Compact Mirrorless", availability: "available", stock: 2 },
+        { id: 4, name: "Sony Alpha 7 Mark III", price: 2500, specs: "24.2MP Full Frame, 4K HDR, 5-Axis Stabilization, Dual SD Slots", availability: "limited", stock: 1 },
+        { id: 5, name: "Sony Alpha 7 Mark IV", price: 3000, specs: "33MP Full Frame, 4K 60p, 10-bit Video, AI-based Autofocus", availability: "available", stock: 2 },
+        { id: 6, name: "Sony ZV-E10", price: 2000, specs: "24.2MP APS-C, 4K Video, Product Showcase Setting, Built-in Mic", availability: "available", stock: 3 },
+        { id: 7, name: "Sony FX3", price: 3500, specs: "12.1MP Full Frame, 4K 120p, S-Cinetone, Professional Cinema Camera", availability: "limited", stock: 1 },
+        { id: 8, name: "Sony NX100", price: 1500, specs: "1-inch Sensor, 20x Optical Zoom, XLR Inputs, Professional Camcorder", availability: "available", stock: 2 },
+        { id: 9, name: "Insta360 X3", price: 1000, specs: "360-Degree Camera, 5.7K Video, Invisible Selfie Stick, FlowState Stabilization", availability: "available", stock: 4 },
+        { id: 10, name: "GoPro Hero 12 Black", price: 800, specs: "5.3K Video, HyperSmooth 6.0, Waterproof, HDR Video", availability: "available", stock: 5 }
+    ],
+    gimbals: [
+        { id: 11, name: "DJI RS 3 Mini", price: 1000, specs: "Compact Stabilizer, 2kg Payload, Bluetooth Shutter, Vertical Shooting", availability: "available", stock: 3 },
+        { id: 12, name: "DJI RS 4", price: 1500, specs: "3kg Payload, Gyro-stabilized Knob, OLED Touchscreen, Carbon Fiber", availability: "available", stock: 2 },
+        { id: 13, name: "DJI Mobile Gimbal (OM 6)", price: 400, specs: "Smartphone Stabilizer, ShotGuides, Gesture Control, Portable", availability: "available", stock: 5 }
+    ],
+    drones: [
+        { id: 14, name: "DJI Mini 4 Pro", price: 2500, specs: "249g, 4K HDR Video, 34-min Flight, Full Obstacle Sensing", availability: "limited", stock: 1 },
+        { id: 15, name: "DJI Air 3S", price: 2500, specs: "Dual Primary Cameras, 46-min Flight, 4K 60fps HDR", availability: "available", stock: 2 },
+        { id: 16, name: "DJI Neo 2", price: 2000, specs: "Ultra-Compact, 4K Video, Palm Takeoff, AI Subject Tracking", availability: "available", stock: 3 }
+    ]
+};
+
+let selectedRentalEquipment = null;
+let currentRentalPrice = 0;
+
+// ========== 3D SCENE ==========
+const container = document.getElementById('canvas-container');
+if(container) {
+    const scene = new THREE.Scene();
+    scene.background = null;
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.2, 15);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    const ambientLight = new THREE.AmbientLight(0x111133);
+    scene.add(ambientLight);
+    const mainLight = new THREE.DirectionalLight(0x9b51e0, 1.2);
+    mainLight.position.set(2, 3, 4);
+    scene.add(mainLight);
+    const knotGeo = new THREE.TorusKnotGeometry(1.6, 0.38, 220, 36, 3, 4);
+    const knotMat = new THREE.MeshStandardMaterial({ color: 0x8c5eff, emissive: 0x4a1e8e, emissiveIntensity: 0.95 });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(knot);
+    const particlesCount = 2000;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount; i++) {
+        posArray[i*3] = (Math.random() - 0.5) * 70;
+        posArray[i*3+1] = (Math.random() - 0.5) * 35;
+        posArray[i*3+2] = (Math.random() - 0.5) * 50 - 20;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMat = new THREE.PointsMaterial({ size: 0.07, color: 0x9b51e0, transparent: true, opacity: 0.5 });
+    const particles = new THREE.Points(particlesGeometry, particlesMat);
+    scene.add(particles);
+    let time = 0;
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        time += 0.014;
+        knot.rotation.x = Math.sin(time * 0.25) * 0.25;
+        knot.rotation.y = time * 0.5;
+        particles.rotation.y = time * 0.025;
+        camera.position.x += (0 - camera.position.x) * 0.02;
+        camera.position.y += (Math.sin(time * 0.18) * 0.3 - camera.position.y) * 0.02;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+    }
+    animate3D();
+    window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+}
+
+// ========== CURSOR ==========
+if(window.innerWidth >= 1024) {
+    const cursor = document.getElementById('cursor');
+    const follower = document.getElementById('cursorFollower');
+    const glow = document.getElementById('cursorGlow');
+    let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; if(cursor) cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`; if(glow) glow.style.transform = `translate(${mouseX}px, ${mouseY}px)`; });
+    function animateCursor() { followerX += (mouseX - followerX) * 0.12; followerY += (mouseY - followerY) * 0.12; if(follower) follower.style.transform = `translate(${followerX}px, ${followerY}px)`; requestAnimationFrame(animateCursor); }
+    animateCursor();
+}
+
+// ========== RENDER EQUIPMENT GRIDS ==========
+function renderEquipment() {
+    const camerasGrid = document.getElementById('camerasGrid');
+    camerasGrid.innerHTML = equipmentInventory.cameras.map(cam => `
+        <div class="equipment-item">
+            <div class="equipment-name">${cam.name}</div>
+            <div class="equipment-price">$${cam.price}<small>/day</small></div>
+            <div class="equipment-specs"><i class="fas fa-microchip"></i> ${cam.specs}</div>
+            <div><span class="availability ${cam.availability}">${cam.availability === 'available' ? '✓ Available' : (cam.availability === 'limited' ? '⚠ Limited Stock' : '✗ Currently Unavailable')}</span></div>
+            <button class="rent-now-btn" onclick="openRentalForm('${cam.name}', ${cam.price})">Rent Now <i class="fas fa-arrow-right"></i></button>
+        </div>
+    `).join('');
+    
+    const gimbalsGrid = document.getElementById('gimbalsGrid');
+    gimbalsGrid.innerHTML = equipmentInventory.gimbals.map(gim => `
+        <div class="equipment-item">
+            <div class="equipment-name">${gim.name}</div>
+            <div class="equipment-price">$${gim.price}<small>/day</small></div>
+            <div class="equipment-specs"><i class="fas fa-microchip"></i> ${gim.specs}</div>
+            <div><span class="availability ${gim.availability}">${gim.availability === 'available' ? '✓ Available' : (gim.availability === 'limited' ? '⚠ Limited Stock' : '✗ Currently Unavailable')}</span></div>
+            <button class="rent-now-btn" onclick="openRentalForm('${gim.name}', ${gim.price})">Rent Now <i class="fas fa-arrow-right"></i></button>
+        </div>
+    `).join('');
+    
+    const dronesGrid = document.getElementById('dronesGrid');
+    dronesGrid.innerHTML = equipmentInventory.drones.map(drone => `
+        <div class="equipment-item">
+            <div class="equipment-name">${drone.name}</div>
+            <div class="equipment-price">$${drone.price}<small>/day</small></div>
+            <div class="equipment-specs"><i class="fas fa-microchip"></i> ${drone.specs}</div>
+            <div><span class="availability ${drone.availability}">${drone.availability === 'available' ? '✓ Available' : (drone.availability === 'limited' ? '⚠ Limited Stock' : '✗ Currently Unavailable')}</span></div>
+            <button class="rent-now-btn" onclick="openRentalForm('${drone.name}', ${drone.price})">Rent Now <i class="fas fa-arrow-right"></i></button>
+        </div>
+    `).join('');
+}
+
+// ========== OPEN RENTAL FORM ==========
+function openRentalForm(equipmentName, price) {
+    selectedRentalEquipment = equipmentName;
+    currentRentalPrice = price;
+    
+    document.getElementById('selectedEquipment').value = equipmentName;
+    document.getElementById('selectedEquipmentDisplay').value = equipmentName;
+    document.getElementById('equipmentNameDisplay').innerHTML = equipmentName;
+    document.getElementById('dailyRate').value = price;
+    document.getElementById('displayDailyRate').innerHTML = `$${price}/day`;
+    
+    // Set default start date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('startDate').value = tomorrow.toISOString().split('T')[0];
+    
+    document.getElementById('rentalDays').value = 1;
+    updateTotalAmount();
+    
+    document.getElementById('rentalModal').classList.remove('active');
+    document.getElementById('orderModal').classList.add('active');
+}
+
+// ========== UPDATE TOTAL AMOUNT ==========
+function updateTotalAmount() {
+    const days = parseInt(document.getElementById('rentalDays').value) || 1;
+    const totalRental = days * currentRentalPrice;
+    const securityDeposit = 200;
+    const totalWithDeposit = totalRental + securityDeposit;
+    
+    document.getElementById('displayDays').innerHTML = days;
+    document.getElementById('totalAmountDisplay').innerHTML = `$${totalWithDeposit}`;
+}
+
+document.getElementById('rentalDays')?.addEventListener('input', updateTotalAmount);
+
+// ========== RENTAL SERVICE BLOCK CLICK ==========
+document.getElementById('rentalServiceBlock').addEventListener('click', () => {
+    renderEquipment();
+    document.getElementById('rentalModal').classList.add('active');
+});
+
+// Other service blocks
+document.querySelectorAll('.service-block:not(#rentalServiceBlock)').forEach(block => {
+    block.addEventListener('click', () => {
+        const serviceType = block.getAttribute('data-service');
+        const serviceName = block.getAttribute('data-name');
+        document.getElementById('serviceType').value = serviceType;
+        document.getElementById('serviceName').value = serviceName;
+        document.getElementById('modalTitle').innerHTML = `<i class="fas fa-rocket"></i> Submit Requirements for ${serviceName}`;
+        document.getElementById('orderModal').classList.add('active');
+        
+        // Reset rental-specific fields
+        document.getElementById('selectedEquipmentDisplay').value = '';
+        document.getElementById('selectedEquipment').value = '';
+        document.getElementById('rentalDays').value = 1;
+        document.getElementById('startDate').value = '';
+    });
+});
+
+// Close modals
+document.getElementById('closeRentalModalBtn')?.addEventListener('click', () => {
+    document.getElementById('rentalModal').classList.remove('active');
+});
+document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+    document.getElementById('orderModal').classList.remove('active');
+    document.getElementById('orderForm').reset();
+});
+document.getElementById('rentalModal')?.addEventListener('click', (e) => {
+    if(e.target === document.getElementById('rentalModal')) {
+        document.getElementById('rentalModal').classList.remove('active');
+    }
+});
+document.getElementById('orderModal')?.addEventListener('click', (e) => {
+    if(e.target === document.getElementById('orderModal')) {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+});
+
+// ========== SUBMIT ORDER - Saves to both Admin and Rental Admin ==========
+function showMessage(msg, isError = false) {
+    let existing = document.querySelector('.toast-message');
+    if(existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = msg;
+    if(isError) toast.style.background = '#8B2C2C';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+document.getElementById('orderForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const days = parseInt(document.getElementById('rentalDays').value) || 1;
+    const totalRental = days * currentRentalPrice;
+    const securityDeposit = 200;
+    const totalWithDeposit = totalRental + securityDeposit;
+    
+    const orderData = {
+        id: 'RENT' + Date.now(),
+        orderId: 'RENT' + Date.now().toString().slice(-8),
+        type: 'rental',
+        serviceType: 'rental',
+        serviceName: 'Equipment Rental',
+        equipmentName: document.getElementById('selectedEquipment').value,
+        customerName: document.getElementById('customerName').value.trim(),
+        customerEmail: document.getElementById('customerEmail').value.trim(),
+        customerPhone: document.getElementById('customerPhone').value.trim(),
+        rentalDays: days,
+        dailyRate: currentRentalPrice,
+        totalRentalAmount: totalRental,
+        securityDeposit: securityDeposit,
+        totalAmount: totalWithDeposit,
+        startDate: document.getElementById('startDate').value,
+        endDate: (() => {
+            const date = new Date(document.getElementById('startDate').value);
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        })(),
+        requirements: document.getElementById('requirements').value.trim(),
+        status: 'pending',
+        paymentStatus: 'pending',
+        createdAt: new Date().toISOString(),
+        submittedAt: new Date().toLocaleString()
+    };
+    
+    if(!orderData.customerName || !orderData.customerEmail || !orderData.customerPhone) {
+        showMessage('Please fill all required fields', true);
+        return;
+    }
+    
+    // Save to main orders for Super Admin
+    const existingOrders = JSON.parse(localStorage.getItem('crewholic_orders') || '[]');
+    existingOrders.push(orderData);
+    localStorage.setItem('crewholic_orders', JSON.stringify(existingOrders));
+    
+    // Save to rental orders for Rental Admin
+    const rentalOrders = JSON.parse(localStorage.getItem('rental_orders') || '[]');
+    rentalOrders.push({
+        ...orderData,
+        rentalStatus: 'pending',
+        equipmentStatus: 'reserved'
+    });
+    localStorage.setItem('rental_orders', JSON.stringify(rentalOrders));
+    
+    showMessage('✅ Your rental request has been submitted! Admin will confirm availability within 24 hours.');
+    document.getElementById('orderModal').classList.remove('active');
+    document.getElementById('orderForm').reset();
+});
+
+// Navigation
+document.getElementById('logoContainer').addEventListener('click', () => { window.location.href = 'index.html'; });
+document.querySelectorAll('.social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC — coming soon!')));
+</script>
+</body>
+</html>

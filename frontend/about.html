@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CREWHOLIC — About Us | Fusion-Powered Digital Agency</title>
+    <!-- Bootstrap 5 CSS + Icons + Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050510;
+            color: #FFFFFF;
+            line-height: 1.2;
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        @media (min-width: 1024px) {
+            .cursor {
+                width: 20px;
+                height: 20px;
+                background: linear-gradient(135deg, #9B51E0, #F2994A);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 20px rgba(155,81,224,0.8);
+                mix-blend-mode: difference;
+                transition: transform 0.1s, width 0.2s, height 0.2s;
+            }
+            .cursor-follower {
+                width: 40px;
+                height: 40px;
+                border: 2px solid rgba(155,81,224,0.6);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9998;
+                transition: transform 0.15s, width 0.3s, height 0.3s;
+                transform: translate(-50%, -50%);
+            }
+            .cursor-glow {
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(155,81,224,0.12) 0%, rgba(242,153,74,0.05) 50%, transparent 70%);
+                position: fixed;
+                pointer-events: none;
+                z-index: 9997;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.2s;
+            }
+            body { cursor: none; }
+        }
+        @media (max-width: 1023px) {
+            .cursor, .cursor-follower, .cursor-glow { display: none; }
+            body { cursor: auto; }
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 30%, rgba(10, 15, 30, 0.7) 0%, #010105 95%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container-custom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-nav {
+            background: rgba(10, 12, 25, 0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 80px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 5px 8px;
+        }
+
+        .logo-img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 15px rgba(155,81,224,0.4));
+        }
+
+        .nav-btn-glow {
+            background: transparent;
+            border: none;
+            color: #D0D5F0;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 20px;
+            border-radius: 60px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            transition: left 0.4s ease;
+            z-index: -1;
+            border-radius: 60px;
+        }
+
+        .nav-btn-glow:hover::before { left: 0; }
+        .nav-btn-glow:hover { color: white; transform: translateY(-2px); }
+
+        .btn-primary-grad {
+            background: linear-gradient(95deg, #9B51E0 0%, #F2994A 100%);
+            padding: 12px 32px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-giant {
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            border: none;
+            padding: 16px 48px;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17,19,30,0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 14px;
+            border: 1px solid rgba(155,81,224,0.7);
+            z-index: 10000;
+            animation: toastSlide 0.3s ease;
+        }
+
+        @keyframes toastSlide {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* About Hero */
+        .about-hero {
+            padding: 40px 0 30px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(155,81,224,0.2);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #C0AAFF;
+            margin-bottom: 24px;
+        }
+        .about-main-title {
+            font-size: clamp(48px, 9vw, 96px);
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #FFFFFF, #9B51E0, #F2994A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 24px;
+        }
+        .about-sub {
+            font-size: 18px;
+            color: #B4BDE8;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* Mission Statement */
+        .mission-section {
+            background: rgba(255,255,255,0.02);
+            border-radius: 48px;
+            padding: 60px 48px;
+            margin: 40px 0 60px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .mission-quote {
+            font-size: clamp(24px, 4vw, 40px);
+            font-weight: 700;
+            line-height: 1.3;
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #FFFFFF, #C0C8FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .mission-sub {
+            color: #9AA2C5;
+            margin-top: 24px;
+            font-size: 16px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            text-align: center;
+            background: rgba(10,12,20,0.5);
+            padding: 32px 20px;
+            border-radius: 32px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-number-big {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Values Section */
+        .values-section {
+            margin: 70px 0;
+        }
+        .section-title {
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #FFF, #B5C0FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+        }
+        .value-card {
+            background: rgba(12,15,28,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 32px 24px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s;
+        }
+        .value-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(155,81,224,0.4);
+        }
+        .value-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .value-card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .value-card p {
+            color: #B4BDE8;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin: 70px 0;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            position: relative;
+            padding-left: 40px;
+        }
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #9B51E0, #F2994A);
+        }
+        .timeline-item {
+            position: relative;
+            padding: 20px 30px;
+            background: rgba(12,15,28,0.5);
+            border-radius: 24px;
+            backdrop-filter: blur(4px);
+        }
+        .timeline-year {
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        .timeline-item h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        /* Team Section */
+        .team-section {
+            margin: 70px 0;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 35px;
+            margin-top: 40px;
+        }
+        .team-member {
+            background: rgba(12,15,28,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 32px 24px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s;
+        }
+        .team-member:hover {
+            transform: translateY(-6px);
+            border-color: rgba(155,81,224,0.4);
+        }
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px;
+            color: white;
+        }
+        .team-member h3 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+        .member-title {
+            color: #9B51E0;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .member-bio {
+            color: #B4BDE8;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 64px;
+            margin: 40px 0 60px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #8F99CC;
+            font-size: 20px;
+            transition: 0.3s;
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+        .footer-links a:hover { color: #F2994A; transform: translateY(-5px); }
+        .copyright {
+            font-size: 13px;
+            color: #6E789E;
+        }
+
+        @media (max-width: 768px) {
+            .container-custom { padding: 0 16px; }
+            .glass-nav { background: rgba(10,12,25,0.85); }
+            .timeline { padding-left: 20px; }
+            .timeline-year { left: -30px; width: 40px; height: 40px; font-size: 11px; }
+            .toast-message { white-space: normal; width: 90%; text-align: center; }
+            .stats-grid { flex-direction: column; }
+            .footer { flex-direction: column; gap: 20px; text-align: center; }
+            .footer-links a { margin: 0 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div id="canvas-container"></div>
+
+<div class="container-custom">
+    <!-- Bootstrap Navbar -->
+    <nav class="navbar navbar-expand-lg py-3 position-relative" style="z-index: 20;">
+        <div class="container-fluid p-0">
+            <div class="logo-area d-flex align-items-center gap-2" id="logoContainer" style="cursor: pointer;">
+                <img id="dynamicLogo" class="logo-img" src="skr.png" alt="CREWHOLIC">
+                <span style="font-size:22px; font-weight:800; background:linear-gradient(135deg,#FFF,#9B51E0,#F2994A); -webkit-background-clip:text; background-clip:text; color:transparent;">CREWHOLIC</span>
+            </div>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars fs-2" style="color:white;"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
+                <ul class="navbar-nav mb-2 mb-lg-0 gap-2 glass-nav px-3 py-2 align-items-center">
+                    <li class="nav-item"><a href="index.html" class="nav-btn-glow"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a href="service.html" class="nav-btn-glow"><i class="fas fa-cogs me-1"></i> Services</a></li>
+                    <li class="nav-item"><a href="portfolio.html" class="nav-btn-glow"><i class="fas fa-layer-group me-1"></i> Portfolio</a></li>
+                    <li class="nav-item"><a href="about.html" class="nav-btn-glow"><i class="fas fa-users me-1"></i> About</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-btn-glow"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                    
+                    <!-- Auth Section -->
+                    <li class="nav-item" id="authSection">
+                        <a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;">
+                            <i class="fas fa-user-circle"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="about-hero">
+        <div class="hero-badge"><i class="fas fa-users"></i> THE CREW BEHIND THE FUSION</div>
+        <h1 class="about-main-title">We Are CREWHOLIC</h1>
+        <p class="about-sub">A collective of visionaries, engineers, and creators united by one mission: to fuse creativity with cutting-edge technology.</p>
+    </div>
+
+    <div class="mission-section">
+        <div class="mission-quote">
+            "We don't just build campaigns — we engineer digital revolutions that redefine what's possible."
+        </div>
+        <div class="mission-sub">— Founded in 2020 with a vision to transform the digital agency landscape</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number-big">150+</div><div>Projects Delivered</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Global Footprint</div></div>
+        <div class="stat-card"><div class="stat-number-big">98%</div><div>Client Retention</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Year over Year</div></div>
+        <div class="stat-card"><div class="stat-number-big">25+</div><div>Industry Awards</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Innovation & Design</div></div>
+        <div class="stat-card"><div class="stat-number-big">4.8x</div><div>Avg ROI Delivered</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">For Our Clients</div></div>
+    </div>
+
+    <div class="values-section">
+        <div class="section-title">Our Core Values</div>
+        <div class="values-grid">
+            <div class="value-card"><div class="value-icon"><i class="fas fa-fire"></i></div><h3>Fusion Mindset</h3><p>We blend creativity, data, and technology into seamless solutions that outperform expectations.</p></div>
+            <div class="value-card"><div class="value-icon"><i class="fas fa-chart-line"></i></div><h3>Radical Transparency</h3><p>Real-time reporting, honest communication, and measurable results — no hidden agendas.</p></div>
+            <div class="value-card"><div class="value-icon"><i class="fas fa-rocket"></i></div><h3>Bold Innovation</h3><p>We push boundaries, experiment fearlessly, and embrace emerging tech to give you the edge.</p></div>
+            <div class="value-card"><div class="value-icon"><i class="fas fa-handshake"></i></div><h3>Partnership First</h3><p>Your success is our success. We grow alongside our clients, celebrating every win together.</p></div>
+        </div>
+    </div>
+
+    <div class="timeline-section">
+        <div class="section-title">Our Journey</div>
+        <div class="timeline">
+            <div class="timeline-item"><div class="timeline-year">2020</div><h3>Foundation</h3><p>CREWHOLIC launched with a team of 5 visionaries, focusing on media and web innovation.</p></div>
+            <div class="timeline-item"><div class="timeline-year">2021</div><h3>Fusion Lab</h3><p>Expanded into immersive events and XR experiences, earning first industry awards.</p></div>
+            <div class="timeline-item"><div class="timeline-year">2023</div><h3>Global Scale</h3><p>Opened offices in NYC, London & Singapore, serving 150+ clients worldwide.</p></div>
+            <div class="timeline-item"><div class="timeline-year">2025</div><h3>Web3 Dominance</h3><p>Launched proprietary AI analytics suite & blockchain solutions, redefining digital experiences.</p></div>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <div class="section-title">Meet The Core Crew</div>
+        <div class="team-grid">
+            <div class="team-member"><div class="member-avatar"><i class="fas fa-user-astronaut"></i></div><h3>Alex Rivera</h3><div class="member-title">CEO & Fusion Architect</div><div class="member-bio">15+ years leading digital transformations. Passionate about merging AI with human creativity.</div></div>
+            <div class="team-member"><div class="member-avatar"><i class="fas fa-chart-simple"></i></div><h3>Jordan Lee</h3><div class="member-title">Chief Strategy Officer</div><div class="member-bio">Data-driven growth expert behind 30+ unicorn marketing strategies.</div></div>
+            <div class="team-member"><div class="member-avatar"><i class="fas fa-cube"></i></div><h3>Samira Khan</h3><div class="member-title">Creative Director, Web3</div><div class="member-bio">Pioneering 3D web experiences and immersive metaverse installations.</div></div>
+            <div class="team-member"><div class="member-avatar"><i class="fas fa-calendar-star"></i></div><h3>Marcus Chen</h3><div class="member-title">Head of Events</div><div class="member-bio">Architect of hybrid experiences that blend physical and digital realms seamlessly.</div></div>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <h2 style="font-size: 32px; margin-bottom: 16px;">Join the Fusion Revolution</h2>
+        <p style="color: #B4BDE8; max-width: 600px; margin: 0 auto;">Let's create something extraordinary together.</p>
+        <button class="btn-giant mt-4" id="aboutCtaBtn">Become Part of the Crew <i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright">© 2025 CREWHOLIC — Fusion-Powered Digital Agency | About Us</div>
+        <div class="footer-links">
+            <a class="social-link"><i class="fab fa-linkedin-in"></i></a>
+            <a class="social-link"><i class="fab fa-instagram"></i></a>
+            <a class="social-link"><i class="fab fa-x-twitter"></i></a>
+            <a class="social-link"><i class="fab fa-behance"></i></a>
+        </div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    // ========== 3D SCENE ==========
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = null;
+    scene.fog = new THREE.FogExp2(0x020208, 0.005);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.2, 15);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0x111133);
+    scene.add(ambientLight);
+    const mainLight = new THREE.DirectionalLight(0x9b51e0, 1.2);
+    mainLight.position.set(2, 3, 4);
+    scene.add(mainLight);
+    const warmLight = new THREE.PointLight(0xf2994a, 0.9);
+    warmLight.position.set(-2, 1, 3);
+    scene.add(warmLight);
+    const movingLight = new THREE.PointLight(0x4488ff, 0.7);
+    scene.add(movingLight);
+
+    const knotGeo = new THREE.TorusKnotGeometry(1.6, 0.38, 220, 36, 3, 4);
+    const knotMat = new THREE.MeshStandardMaterial({ color: 0x8c5eff, emissive: 0x4a1e8e, emissiveIntensity: 0.95, metalness: 0.85, roughness: 0.2 });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(knot);
+    const wireKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.65, 0.4, 220, 36, 3, 4), new THREE.MeshBasicMaterial({ color: 0xdd99ff, wireframe: true, transparent: true, opacity: 0.3 }));
+    scene.add(wireKnot);
+
+    const particlesCount = 4000;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particlesCount * 3);
+    const colorsArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount; i++) {
+        posArray[i*3] = (Math.random() - 0.5) * 70;
+        posArray[i*3+1] = (Math.random() - 0.5) * 35;
+        posArray[i*3+2] = (Math.random() - 0.5) * 50 - 20;
+        colorsArray[i*3] = Math.random() * 0.6 + 0.4;
+        colorsArray[i*3+1] = Math.random() * 0.4 + 0.5;
+        colorsArray[i*3+2] = Math.random() * 0.9 + 0.1;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+    const particlesMat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending });
+    const particles = new THREE.Points(particlesGeometry, particlesMat);
+    scene.add(particles);
+
+    let time = 0;
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        time += 0.014;
+        knot.rotation.x = Math.sin(time * 0.25) * 0.25;
+        knot.rotation.y = time * 0.5;
+        knot.rotation.z = Math.sin(time * 0.2) * 0.2;
+        wireKnot.rotation.copy(knot.rotation);
+        particles.rotation.y = time * 0.025;
+        movingLight.position.x = Math.sin(time * 0.7) * 3;
+        movingLight.position.z = Math.cos(time * 0.5) * 3;
+        camera.position.x += (0 - camera.position.x) * 0.02;
+        camera.position.y += (Math.sin(time * 0.18) * 0.3 - camera.position.y) * 0.02;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+    }
+    animate3D();
+
+    window.addEventListener('resize', () => { 
+        camera.aspect = window.innerWidth / window.innerHeight; 
+        camera.updateProjectionMatrix(); 
+        renderer.setSize(window.innerWidth, window.innerHeight); 
+    });
+
+    // ========== CURSOR ==========
+    if(window.innerWidth >= 1024) {
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursorFollower');
+        const glow = document.getElementById('cursorGlow');
+        let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+        document.addEventListener('mousemove', (e) => { 
+            mouseX = e.clientX; 
+            mouseY = e.clientY; 
+            if(cursor) cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+            if(glow) glow.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+        });
+        function animateCursor() { 
+            followerX += (mouseX - followerX) * 0.12; 
+            followerY += (mouseY - followerY) * 0.12; 
+            if(follower) follower.style.transform = `translate(${followerX}px, ${followerY}px)`; 
+            requestAnimationFrame(animateCursor); 
+        }
+        animateCursor();
+    }
+
+    // ========== UI HELPERS ==========
+    function showMessage(msg, isError = false) {
+        let existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = msg;
+        if(isError) toast.style.background = '#8B2C2C';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 2800);
+    }
+
+    // ========== AUTHENTICATION ==========
+    let currentUser = null;
+    
+    function loadCurrentUser() {
+        const user = localStorage.getItem('user');
+        if (user) {
+            currentUser = JSON.parse(user);
+            updateAuthUI();
+        } else {
+            currentUser = null;
+            updateAuthUI();
+        }
+    }
+    
+    function updateAuthUI() {
+        const authSection = document.getElementById('authSection');
+        if (!authSection) return;
+        
+        if (currentUser) {
+            const name = currentUser.name || currentUser.email?.split('@')[0] || 'User';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            authSection.innerHTML = `<div class="dropdown"><div class="user-menu" data-bs-toggle="dropdown" style="display:flex; align-items:center; gap:12px; padding:5px 15px; background:rgba(155,81,224,0.2); border-radius:60px; cursor:pointer;"><div style="width:32px; height:32px; background:linear-gradient(135deg,#9B51E0,#F2994A); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">${initials}</div><span style="font-weight:600; font-size:14px;">${name.split(' ')[0]}</span></div></div>`;
+        } else {
+            authSection.innerHTML = `<a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;"><i class="fas fa-user-circle"></i> Login</a>`;
+        }
+    }
+
+    // ========== BUTTONS ==========
+    document.getElementById('aboutCtaBtn')?.addEventListener('click', () => showMessage('🚀 Join the fusion revolution! Let\'s discuss your vision. Contact us today.'));
+    document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'index.html');
+    document.querySelectorAll('.social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC — follow for updates.')));
+    
+    // ========== INITIALIZE ==========
+    loadCurrentUser();
+    
+    console.log('✨ CREWHOLIC About Page Loaded — 3D animated, team profiles, values, timeline');
+</script>
+</body>
+</html>
