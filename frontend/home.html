@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CREWHOLIC — Fusion-Powered Digital Agency | Home</title>
+    <!-- Bootstrap 5 CSS + Icons + Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050510;
+            color: #FFFFFF;
+            line-height: 1.2;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        @media (min-width: 1024px) {
+            .cursor {
+                width: 20px;
+                height: 20px;
+                background: linear-gradient(135deg, #9B51E0, #F2994A);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 20px rgba(155,81,224,0.8);
+                mix-blend-mode: difference;
+                transition: transform 0.1s, width 0.2s, height 0.2s;
+            }
+            .cursor-follower {
+                width: 40px;
+                height: 40px;
+                border: 2px solid rgba(155,81,224,0.6);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9998;
+                transition: transform 0.15s, width 0.3s, height 0.3s;
+                transform: translate(-50%, -50%);
+            }
+            .cursor-glow {
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(155,81,224,0.12) 0%, rgba(242,153,74,0.05) 50%, transparent 70%);
+                position: fixed;
+                pointer-events: none;
+                z-index: 9997;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.2s;
+            }
+            body { cursor: none; }
+        }
+        @media (max-width: 1023px) {
+            .cursor, .cursor-follower, .cursor-glow { display: none; }
+            body { cursor: auto; }
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 30%, rgba(10, 15, 30, 0.4) 0%, #020208 98%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .container-custom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+        .glass-nav {
+            background: rgba(10, 12, 25, 0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 80px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 5px 8px;
+        }
+        .logo-img {
+            height: 50px;
+            width: auto;
+            filter: drop-shadow(0 0 15px rgba(155,81,224,0.4));
+        }
+        .nav-btn-glow {
+            background: transparent;
+            border: none;
+            color: #D0D5F0;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 20px;
+            border-radius: 60px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(95deg, #9B51E0, #F2994A);
+            transition: left 0.4s ease;
+            z-index: -1;
+            border-radius: 60px;
+        }
+        .nav-btn-glow:hover::before { left: 0; }
+        .nav-btn-glow:hover { color: white; transform: translateY(-2px); }
+        
+        .btn-premium, .btn-primary-grad, .submit-btn {
+            background: linear-gradient(95deg, #9B51E0 0%, #F2994A 100%);
+            padding: 12px 32px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 5px 25px rgba(155,81,224,0.4);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-premium:hover, .btn-primary-grad:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(155,81,224,0.6);
+            color: white;
+        }
+        .main-title {
+            font-size: clamp(42px, 9vw, 92px);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #FFFFFF, #D0D5FF, #9B51E0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(155,81,224,0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(155,81,224,0.6)); }
+        }
+        .service-badge {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #C0AAFF;
+            background: rgba(155,81,224,0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            display: inline-block;
+            margin: 0 5px 10px;
+        }
+        .glass-card {
+            background: rgba(12,15,28,0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(155,81,224,0.7);
+            box-shadow: 0 35px 50px -20px rgba(0,0,0,0.6);
+        }
+        .stat-number {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFF, #9B51E0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17,19,30,0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 14px;
+            border: 1px solid rgba(155,81,224,0.7);
+            z-index: 10000;
+            animation: toastSlide 0.3s ease;
+        }
+        @keyframes toastSlide {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .crew-cta {
+            background: radial-gradient(circle at center, rgba(155,81,224,0.15), transparent);
+            border-radius: 60px;
+            padding: 60px 30px;
+            text-align: center;
+            animation: bgPulse 4s ease-in-out infinite;
+        }
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .footer-links a {
+            color: #8F99CC;
+            font-size: 20px;
+            transition: 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .footer-links a:hover { color: #F2994A; transform: translateY(-5px); }
+        @media (max-width: 768px) {
+            .container-custom { padding: 0 16px; }
+            .glass-nav { background: rgba(10,12,25,0.85); }
+        }
+        
+        /* User Menu Styles */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: rgba(155,81,224,0.2);
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(155,81,224,0.3);
+        }
+        .user-menu:hover {
+            background: rgba(155,81,224,0.4);
+            transform: translateY(-2px);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+        }
+        .dropdown-menu-custom {
+            background: rgba(15,18,40,0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 8px 0;
+            min-width: 200px;
+        }
+        .dropdown-menu-custom a {
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .dropdown-menu-custom a:hover {
+            background: rgba(155,81,224,0.3);
+            color: white;
+        }
+        .dropdown-divider {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div id="canvas-container"></div>
+
+<div class="container-custom">
+    <!-- Bootstrap Navbar with Toggler for Mobile -->
+    <nav class="navbar navbar-expand-lg py-3 position-relative" style="z-index: 20;">
+        <div class="container-fluid p-0">
+            <div class="logo-area d-flex align-items-center gap-2" id="logoContainer" style="cursor: pointer;">
+                <img id="dynamicLogo" class="logo-img" src="skr.png" alt="CREWHOLIC">
+                <span style="font-size:22px; font-weight:800; background:linear-gradient(135deg,#FFF,#9B51E0,#F2994A); -webkit-background-clip:text; background-clip:text; color:transparent;">CREWHOLIC</span>
+            </div>
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars fs-2" style="color:white;"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
+                <ul class="navbar-nav mb-2 mb-lg-0 gap-2 glass-nav px-3 py-2 align-items-center">
+                    <li class="nav-item"><a href="index.html" class="nav-btn-glow"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a href="service.html" class="nav-btn-glow"><i class="fas fa-cogs me-1"></i> Services</a></li>
+                    <li class="nav-item"><a href="portfolio.html" class="nav-btn-glow"><i class="fas fa-layer-group me-1"></i> Portfolio</a></li>
+                    <li class="nav-item"><a href="about.html" class="nav-btn-glow"><i class="fas fa-users me-1"></i> About</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-btn-glow"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                    
+                    <!-- Dynamic Auth Section - Will be replaced by JavaScript -->
+                    <li class="nav-item" id="authSection">
+                        <a href="login.html" class="btn btn-sm login-btn-nav" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;">
+                            <i class="fas fa-user-circle"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero py-5">
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <span class="service-badge">MEDIA</span>
+            <span class="service-badge">MARKETING</span>
+            <span class="service-badge">EVENTS</span>
+            <span class="service-badge">WEB3</span>
+        </div>
+        <h1 class="main-title">DOMINATE YOUR MARKET<br>WITH <span class="text-gradient">FUSION-POWERED</span><br>DIGITAL EXPERIENCES</h1>
+        <p class="description text-light-emphasis fs-5 mt-4">We are an all-in-one agency delivering undeniable ROI through Media, Marketing, Events, and Web experiences.</p>
+        <div class="d-flex gap-3 flex-wrap mt-4">
+            <a href="contact.html" class="btn-primary-grad" style="text-decoration: none;">LET'S BUILD YOUR CREW <i class="fas fa-arrow-right"></i></a>
+            <a href="portfolio.html" class="btn btn-outline-light rounded-pill px-4" style="text-decoration: none;">View Portfolio <i class="fas fa-long-arrow-alt-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mt-4 border-top pt-5">
+        <div class="col-md-4 text-center reveal">
+            <div class="stat-number">150</div>
+            <div class="fw-semibold">SUCCESSFUL CAMPAIGNS</div>
+        </div>
+        <div class="col-md-4 text-center reveal">
+            <div class="stat-number">98</div>
+            <div class="fw-semibold">CLIENT RETENTION %</div>
+        </div>
+        <div class="col-md-4 text-center reveal">
+            <div class="stat-number">4.8</div>
+            <div class="fw-semibold">AVERAGE ROI x</div>
+        </div>
+    </div>
+
+    <!-- Services Preview -->
+    <div class="row g-4 my-5">
+        <div class="col-md-3 reveal">
+            <div class="glass-card p-4 text-center">
+                <i class="fas fa-tv fa-3x mb-3" style="color: #9B51E0"></i>
+                <h3>Media Dominance</h3>
+                <p class="text-light-emphasis">Strategic media buying and omnichannel distribution.</p>
+            </div>
+        </div>
+        <div class="col-md-3 reveal">
+            <div class="glass-card p-4 text-center">
+                <i class="fas fa-chart-line fa-3x mb-3" style="color: #9B51E0"></i>
+                <h3>Growth Marketing</h3>
+                <p class="text-light-emphasis">Data-driven funnels and AI-personalization.</p>
+            </div>
+        </div>
+        <div class="col-md-3 reveal">
+            <div class="glass-card p-4 text-center">
+                <i class="fas fa-calendar-star fa-3x mb-3" style="color: #9B51E0"></i>
+                <h3>Immersive Events</h3>
+                <p class="text-light-emphasis">Hybrid & IRL experiences blending realities.</p>
+            </div>
+        </div>
+        <div class="col-md-3 reveal">
+            <div class="glass-card p-4 text-center">
+                <i class="fas fa-cube fa-3x mb-3" style="color: #9B51E0"></i>
+                <h3>Web3 & Dev</h3>
+                <p class="text-light-emphasis">3D web platforms, blockchain integration.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="crew-cta my-5">
+        <div class="crew-title fs-1 fw-bold">LET'S BUILD YOUR CREW</div>
+        <a href="contact.html" class="btn-primary-grad mt-4" style="text-decoration: none; display: inline-block;">Start the journey <i class="fas fa-handshake"></i></a>
+    </div>
+
+    <footer class="footer row mt-5 pt-5 pb-4 border-top border-light-subtle">
+        <div class="col-md-6 text-center text-md-start">
+            <div class="copyright">© 2025 CREWHOLIC — Fusion-Powered Digital Agency</div>
+        </div>
+        <div class="col-md-6 text-center text-md-end footer-links">
+            <a class="social-link mx-2"><i class="fab fa-linkedin-in"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-instagram"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-x-twitter"></i></a>
+            <a class="social-link mx-2"><i class="fab fa-behance"></i></a>
+        </div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    
+    // ========== USER AUTHENTICATION ==========
+    let currentUser = null;
+    
+    // Load user from storage
+    function loadCurrentUser() {
+        const user = localStorage.getItem('user');
+        if (user) {
+            currentUser = JSON.parse(user);
+            updateAuthUI();
+        } else {
+            currentUser = null;
+            updateAuthUI();
+        }
+    }
+    
+    function updateAuthUI() {
+        const authSection = document.getElementById('authSection');
+        if (!authSection) return;
+        
+        if (currentUser) {
+            const name = currentUser.name || currentUser.email?.split('@')[0] || 'User';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+            // 🔥 ROLE CHECK
+        // Role based dashboard links
+        const roleDashboards = {
+            super_admin: "admin-dashboard.html",
+            rental_admin: "rental-dashboard.html",
+            finance_admin: "finance-dashboard.html",
+            webdev_admin: "webdev-dashboard.html",
+            marketing_admin: "marketing-dashboard.html",
+            event_admin: "event-dashboard.html",
+            user: "user-dashboard.html"
+        };
+
+        // Get correct dashboard
+        const dashboardLink = roleDashboards[currentUser.role] || "user-dashboard.html";
+
+            authSection.innerHTML = `
+                <div class="dropdown">
+                    <div class="user-menu" data-bs-toggle="dropdown">
+                        <div class="user-avatar">${initials}</div>
+                        <span class="user-name">${name.split(' ')[0]}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-custom">
+                        <li>
+                            <a class="dropdown-item" href="${dashboardLink}">
+                                <i class="fas fa-tachometer-alt"></i> My Dashboard
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="${dashboardLink}?tab=profile">
+                                <i class="fas fa-user-circle"></i> My Profile
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="${dashboardLink}?tab=orders">
+                                <i class="fas fa-shopping-bag"></i> My Orders
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="logout(); return false;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        } else {
+            authSection.innerHTML = `
+                <a href="login.html" class="btn btn-sm"
+                style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white;">
+                <i class="fas fa-user-circle"></i> Login
+                </a>
+            `;
+        }
+    }
+    
+    // Logout function
+    function logout() {
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+        currentUser = null;
+        updateAuthUI();
+        showMessage('👋 You have been logged out successfully!');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+    
+    // ========== 3D SCENE ==========
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = null;
+    scene.fog = new THREE.FogExp2(0x020208, 0.005);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.2, 15);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    
+    const ambientLight = new THREE.AmbientLight(0x111133);
+    scene.add(ambientLight);
+    const mainLight = new THREE.DirectionalLight(0x9b51e0, 1.2);
+    mainLight.position.set(2, 3, 4);
+    scene.add(mainLight);
+    const warmLight = new THREE.PointLight(0xf2994a, 0.9);
+    warmLight.position.set(-2, 1, 3);
+    scene.add(warmLight);
+    const movingLight = new THREE.PointLight(0x4488ff, 0.7);
+    scene.add(movingLight);
+    
+    const knotGeo = new THREE.TorusKnotGeometry(1.6, 0.38, 220, 36, 3, 4);
+    const knotMat = new THREE.MeshStandardMaterial({ color: 0x8c5eff, emissive: 0x4a1e8e, emissiveIntensity: 0.95, metalness: 0.85, roughness: 0.2 });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(knot);
+    const wireKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.65, 0.4, 220, 36, 3, 4), new THREE.MeshBasicMaterial({ color: 0xdd99ff, wireframe: true, transparent: true, opacity: 0.3 }));
+    scene.add(wireKnot);
+    
+    const orbGroup = [];
+    for(let i=0; i<16; i++) {
+        const orb = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 24), new THREE.MeshStandardMaterial({ color: 0xff77aa, emissive: 0x552266, emissiveIntensity: 0.6 }));
+        orb.userData = { angle: (i / 16) * Math.PI * 2, radius: 2.8, speed: 0.6 + Math.random() * 0.6, yOffset: (Math.random() - 0.5) * 2.5 };
+        scene.add(orb);
+        orbGroup.push(orb);
+    }
+    
+    const particlesCount = 4000;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particlesCount * 3);
+    const colorsArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount; i++) {
+        posArray[i*3] = (Math.random() - 0.5) * 70;
+        posArray[i*3+1] = (Math.random() - 0.5) * 35;
+        posArray[i*3+2] = (Math.random() - 0.5) * 50 - 20;
+        colorsArray[i*3] = Math.random() * 0.6 + 0.4;
+        colorsArray[i*3+1] = Math.random() * 0.4 + 0.5;
+        colorsArray[i*3+2] = Math.random() * 0.9 + 0.1;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+    const particlesMat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending });
+    const particles = new THREE.Points(particlesGeometry, particlesMat);
+    scene.add(particles);
+    
+    const rings = [];
+    [1.9, 2.4, 2.9].forEach((r, idx) => {
+        const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(r, 0.045, 160, 360), new THREE.MeshStandardMaterial({ color: idx === 0 ? 0xff66cc : (idx === 1 ? 0x44aaff : 0xffaa44), emissive: 0x331166, emissiveIntensity: 0.5 }));
+        scene.add(ringMesh);
+        rings.push(ringMesh);
+    });
+    
+    const sparkleCount = 800;
+    const sparkleGeo = new THREE.BufferGeometry();
+    const sparklePos = [];
+    for (let i = 0; i < sparkleCount; i++) {
+        sparklePos.push((Math.random() - 0.5) * 30);
+        sparklePos.push((Math.random() - 0.5) * 20);
+        sparklePos.push((Math.random() - 0.5) * 25 - 5);
+    }
+    sparkleGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sparklePos), 3));
+    const sparkles = new THREE.Points(sparkleGeo, new THREE.PointsMaterial({ color: 0xffaa88, size: 0.05, transparent: true, blending: THREE.AdditiveBlending }));
+    scene.add(sparkles);
+    
+    let time = 0;
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        time += 0.014;
+        knot.rotation.x = Math.sin(time * 0.25) * 0.25;
+        knot.rotation.y = time * 0.5;
+        knot.rotation.z = Math.sin(time * 0.2) * 0.2;
+        wireKnot.rotation.copy(knot.rotation);
+        rings.forEach((ring, i) => { ring.rotation.x = time * (0.12 + i * 0.06); ring.rotation.y = time * (0.18 + i * 0.04); ring.rotation.z = time * 0.12; });
+        orbGroup.forEach((orb, idx) => {
+            const angle = time * 0.9 + orb.userData.angle;
+            const x = Math.cos(angle) * orb.userData.radius;
+            const z = Math.sin(angle) * orb.userData.radius;
+            orb.position.set(x, Math.sin(time * 1.8 + idx) * 1.2, z);
+        });
+        particles.rotation.y = time * 0.025;
+        sparkles.rotation.y = time * 0.015;
+        movingLight.position.x = Math.sin(time * 0.7) * 3;
+        movingLight.position.z = Math.cos(time * 0.5) * 3;
+        camera.position.x += (0 - camera.position.x) * 0.02;
+        camera.position.y += (Math.sin(time * 0.18) * 0.3 - camera.position.y) * 0.02;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene, camera);
+    }
+    animate3D();
+    
+    window.addEventListener('resize', () => { 
+        camera.aspect = window.innerWidth / window.innerHeight; 
+        camera.updateProjectionMatrix(); 
+        renderer.setSize(window.innerWidth, window.innerHeight); 
+    });
+    
+    // ========== CURSOR ==========
+    if(window.innerWidth >= 1024) {
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursorFollower');
+        const glow = document.getElementById('cursorGlow');
+        let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+        document.addEventListener('mousemove', (e) => { 
+            mouseX = e.clientX; 
+            mouseY = e.clientY; 
+            if(cursor) cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+            if(glow) glow.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+        });
+        function animateCursor() { 
+            followerX += (mouseX - followerX) * 0.12; 
+            followerY += (mouseY - followerY) * 0.12; 
+            if(follower) follower.style.transform = `translate(${followerX}px, ${followerY}px)`; 
+            requestAnimationFrame(animateCursor); 
+        }
+        animateCursor();
+    }
+    
+    // ========== Helper functions ==========
+    function showMessage(msg, isError = false) {
+        let existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = msg;
+        if(isError) toast.style.background = '#8B2C2C';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2800);
+    }
+    
+    function handleScrollReveal() {
+        const reveals = document.querySelectorAll('.reveal');
+        reveals.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 100) el.classList.add('active');
+        });
+    }
+    
+    window.addEventListener('scroll', handleScrollReveal);
+    document.querySelectorAll('.social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC — coming soon!')));
+    document.getElementById('logoContainer').onclick = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    
+    // Initialize
+    window.addEventListener('load', () => { 
+        handleScrollReveal(); 
+        loadCurrentUser();
+        
+        // Animate stats
+        const stats = document.querySelectorAll('.stat-number');
+        stats.forEach(stat => {
+            const target = stat.innerText;
+            const targetNum = parseInt(target);
+            if (!isNaN(targetNum)) {
+                let current = 0;
+                const increment = targetNum / 50;
+                const interval = setInterval(() => {
+                    current += increment;
+                    if (current >= targetNum) { stat.innerText = target; clearInterval(interval); }
+                    else { stat.innerText = Math.floor(current); }
+                }, 30);
+            }
+        });
+    });
+</script>
+</body>
+</html>
