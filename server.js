@@ -34,13 +34,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // 🔥 ADD THIS (VERY IMPORTANT)
-transporter.verify((error, success) => {
-    if (error) {
-        console.log("❌ Email config error:", error);
-    } else {
-        console.log("✅ Email server is ready");
-    }
-});
+//transporter.verify((error, success) => {
+//     if (error) {
+//         console.log("❌ Email config error:", error);
+//     } else {
+//         console.log("✅ Email server is ready");
+//     }
+// });
 
 // ================= OTP STORE =================
 let otpStore = {}; 
@@ -187,49 +187,22 @@ app.post('/api/register', async (req, res) => {
         });
 
         // Welcome Email
-        await transporter.sendMail({
-            from: `"CREWHOLIC" <${EMAIL_USER}>`,
-            to: email,
-            subject: "🎉 Welcome to CREWHOLIC",
-            html: `
-                <div style="font-family: Arial, sans-serif; background: #0a0a2a; padding: 30px; color: #fff;">
-                    <div style="max-width: 600px; margin: auto; background: #111328; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                        
-                        <h1 style="color: #9B51E0; margin-bottom: 10px;">Welcome, ${name} 🚀</h1>
-                        
-                        <p style="font-size: 16px; color: #ccc;">
-                            We're excited to have you at <b style="color:#F2994A;">CREWHOLIC</b>!
-                        </p>
+try {
+    await transporter.sendMail({
+        from: `"CREWHOLIC" <${EMAIL_USER}>`,
+        to: email,
+        subject: "🎉 Welcome to CREWHOLIC",
+        html: `
+            <h2>Welcome ${name} 🚀</h2>
+            <p>Your account has been successfully created.</p>
+        `
+    });
 
-                        <p style="font-size: 14px; color: #aaa; margin-top: 20px;">
-                            Your account has been successfully created and you're now ready to explore amazing features.
-                        </p>
+    console.log("✅ Welcome email sent");
 
-                        <div style="margin: 30px 0;">
-                            <a href="http://localhost:5500/frontend/login.html"
-                            style="background: linear-gradient(90deg,#9B51E0,#F2994A);
-                                    padding: 12px 25px;
-                                    border-radius: 50px;
-                                    color: white;
-                                    text-decoration: none;
-                                    font-weight: bold;">
-                            Login Now
-                            </a>
-                        </div>
-
-                        <p style="font-size: 12px; color: #666;">
-                            If you didn't create this account, please ignore this email.
-                        </p>
-
-                        <hr style="border: none; border-top: 1px solid #222; margin: 20px 0;">
-
-                        <p style="font-size: 12px; color: #777;">
-                            © 2026 CREWHOLIC. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            `
-        });
+} catch (emailErr) {
+    console.log("⚠️ Welcome email failed, but user registered:", emailErr.message);
+}
 
         res.status(201).json({
             msg: "Registered successfully",
