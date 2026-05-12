@@ -405,151 +405,220 @@
 </div>
 
 <script>
-    const API_URL = "https://crewholic-2.onrender.com/api/register";;
+const API_URL = "https://crewholic-2.onrender.com";
 
-    function showMessage(message, isError = false) {
+// ================= SHOW TOAST =================
+function showMessage(message, isError = false) {
 
-        const oldToast = document.querySelector('.toast-message');
+    const oldToast = document.querySelector('.toast-message');
 
-        if (oldToast) oldToast.remove();
+    if (oldToast) oldToast.remove();
 
-        const toast = document.createElement('div');
+    const toast = document.createElement('div');
 
-        toast.className = 'toast-message';
+    toast.className = 'toast-message';
 
-        toast.textContent = message;
+    toast.textContent = message;
 
-        toast.style.background = isError
-            ? '#8B2C2C'
-            : '#1B5E20';
+    toast.style.background = isError
+        ? '#8B2C2C'
+        : '#1B5E20';
 
-        toast.style.border = isError
-            ? '1px solid #FF6B6B'
-            : '1px solid #4CAF50';
+    toast.style.border = isError
+        ? '1px solid #FF6B6B'
+        : '1px solid #4CAF50';
 
-        document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// ================= SUCCESS REDIRECT =================
+function showSuccessAndRedirect(message, userName, redirectUrl) {
+
+    const overlay = document.createElement('div');
+
+    overlay.innerHTML = `
+        <div style="
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                background: linear-gradient(135deg,#9B51E0,#F2994A);
+                padding: 40px;
+                border-radius: 30px;
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+                color: white;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            ">
+                <i class="fas fa-check-circle"
+                    style="font-size:70px;margin-bottom:20px;">
+                </i>
+
+                <h2 style="margin-bottom:15px;">
+                    ${message}
+                </h2>
+
+                <p style="margin-bottom:25px;">
+                    Welcome ${userName}
+                </p>
+
+                <div class="spinner"></div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    setTimeout(() => {
+        window.location.href = redirectUrl;
+    }, 2000);
+}
+
+// ================= LOADING =================
+function setLoading(show) {
+
+    const spinner = document.getElementById('loadingSpinner');
+
+    const form = document.getElementById('signupForm');
+
+    if (show) {
+
+        spinner.style.display = 'block';
+
+        form.style.opacity = '0.5';
+
+        form.style.pointerEvents = 'none';
+
+    } else {
+
+        spinner.style.display = 'none';
+
+        form.style.opacity = '1';
+
+        form.style.pointerEvents = 'auto';
+    }
+}
+
+// ================= PARTICLES =================
+function createParticles() {
+
+    const particlesContainer =
+        document.getElementById('particles');
+
+    for (let i = 0; i < 50; i++) {
+
+        const particle = document.createElement('div');
+
+        particle.classList.add('particle');
+
+        const size = Math.random() * 5 + 2;
+
+        particle.style.width = `${size}px`;
+
+        particle.style.height = `${size}px`;
+
+        particle.style.left = `${Math.random() * 100}%`;
+
+        particle.style.animationDuration =
+            `${Math.random() * 10 + 5}s`;
+
+        particle.style.animationDelay =
+            `${Math.random() * 5}s`;
+
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// ================= SIGNUP =================
+document.getElementById('signupForm')
+.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    const firstName =
+        document.getElementById('firstName').value.trim();
+
+    const lastName =
+        document.getElementById('lastName').value.trim();
+
+    const email =
+        document.getElementById('signupEmail').value.trim();
+
+    const phone =
+        document.getElementById('phoneNumber').value.trim();
+
+    const password =
+        document.getElementById('signupPassword').value;
+
+    const confirmPassword =
+        document.getElementById('confirmPassword').value;
+
+    const termsAccepted =
+        document.getElementById('termsCheckbox').checked;
+
+    const name = `${firstName} ${lastName}`;
+
+    // ================= VALIDATION =================
+
+    if (!firstName || !lastName) {
+
+        return showMessage(
+            'Please enter full name',
+            true
+        );
     }
 
-    function setLoading(show) {
+    if (password !== confirmPassword) {
 
-        const spinner = document.getElementById('loadingSpinner');
-
-        const form = document.getElementById('signupForm');
-
-        if (show) {
-            spinner.style.display = 'block';
-            form.style.opacity = '0.5';
-            form.style.pointerEvents = 'none';
-        } else {
-            spinner.style.display = 'none';
-            form.style.opacity = '1';
-            form.style.pointerEvents = 'auto';
-        }
+        return showMessage(
+            'Passwords do not match',
+            true
+        );
     }
 
-    function createParticles() {
+    const strongPassword =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-        const particlesContainer = document.getElementById('particles');
+    if (!strongPassword.test(password)) {
 
-        for (let i = 0; i < 50; i++) {
-
-            const particle = document.createElement('div');
-
-            particle.classList.add('particle');
-
-            const size = Math.random() * 5 + 2;
-
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-
-            particle.style.left = `${Math.random() * 100}%`;
-
-            particle.style.animationDuration =
-                `${Math.random() * 10 + 5}s`;
-
-            particle.style.animationDelay =
-                `${Math.random() * 5}s`;
-
-            particlesContainer.appendChild(particle);
-        }
+        return showMessage(
+            'Password must contain uppercase, lowercase, number and 8+ chars',
+            true
+        );
     }
 
-    document.getElementById('signupForm')
-        .addEventListener('submit', async (e) => {
+    if (!termsAccepted) {
 
-        e.preventDefault();
+        return showMessage(
+            'Please accept Terms',
+            true
+        );
+    }
 
-        const firstName =
-            document.getElementById('firstName').value.trim();
+    setLoading(true);
 
-        const lastName =
-            document.getElementById('lastName').value.trim();
+    try {
 
-        const email =
-            document.getElementById('signupEmail').value.trim();
+        console.log("Sending request...");
 
-        const phone =
-            document.getElementById('phoneNumber').value.trim();
-
-        const password =
-            document.getElementById('signupPassword').value;
-
-        const confirmPassword =
-            document.getElementById('confirmPassword').value;
-
-        const termsAccepted =
-            document.getElementById('termsCheckbox').checked;
-
-        const name = `${firstName} ${lastName}`;
-
-        if (!firstName || !lastName) {
-            return showMessage(
-                'Please enter full name',
-                true
-            );
-        }
-
-        if (password !== confirmPassword) {
-            return showMessage(
-                'Passwords do not match',
-                true
-            );
-        }
-
-        const strongPassword =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-        if (!strongPassword.test(password)) {
-
-            return showMessage(
-                'Password must contain uppercase, lowercase, number and 8+ chars',
-                true
-            );
-        }
-
-        if (!termsAccepted) {
-            return showMessage(
-                'Please accept Terms',
-                true
-            );
-        }
-
-        setLoading(true);
-
-        try {
-
-            console.log("Sending request...");
-
-            const response = await fetch(API_URL, {
-
-                method: 'POST',
+        const response = await fetch(
+            `${API_URL}/api/register`,
+            {
+                method: "POST",
 
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
 
                 body: JSON.stringify({
@@ -558,61 +627,53 @@
                     password,
                     phone
                 })
-            });
-
-            console.log("STATUS:", response.status);
-
-            const text = await response.text();
-
-            console.log("RAW RESPONSE:", text);
-
-            let data = {};
-
-            try {
-                data = JSON.parse(text);
-            } catch {
-                data = { msg: text };
             }
+        );
 
-            if (response.ok) {
+        console.log("STATUS:", response.status);
 
-                localStorage.setItem(
-                    'user',
-                    JSON.stringify(data.user || {})
-                );
+        const data = await response.json();
 
-                showMessage(
-                    'Account created successfully!'
-                );
+        console.log("RESPONSE:", data);
 
-                setTimeout(() => {
-                    window.location.replace('home.html');
-                }, 1200);
+        if (response.ok) {
 
-            } else {
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
 
-                showMessage(
-                    data.msg || 'Signup failed',
-                    true
-                );
+            showSuccessAndRedirect(
+                "Account Created Successfully!",
+                name,
+                "home.html"
+            );
 
-                setLoading(false);
-            }
-
-        } catch (error) {
-
-            console.error("FULL ERROR:", error);
+        } else {
 
             showMessage(
-                error.message || 'Server error',
+                data.msg || "Signup failed",
                 true
             );
 
             setLoading(false);
         }
-    });
 
-    window.addEventListener('load', createParticles);
+    } catch (error) {
+
+        console.log("FULL ERROR:", error);
+
+        showMessage(
+            "Server error. Please try again.",
+            true
+        );
+
+        setLoading(false);
+    }
+});
+
+// ================= LOAD =================
+window.addEventListener('load', createParticles);
 </script>
 
 </body>
