@@ -8,6 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Swiper JS for Carousel -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         * {
             margin: 0;
@@ -166,6 +170,28 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-giant:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(155,81,224,0.4);
+        }
+        .btn-giant::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-giant:active::after {
+            width: 300px;
+            height: 300px;
         }
 
         .toast-message {
@@ -189,7 +215,7 @@
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* About Hero */
+        /* Hero Section */
         .about-hero {
             padding: 40px 0 30px;
             text-align: center;
@@ -204,6 +230,12 @@
             letter-spacing: 2px;
             color: #C0AAFF;
             margin-bottom: 24px;
+            backdrop-filter: blur(4px);
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(155,81,224,0.5); }
         }
         .about-main-title {
             font-size: clamp(48px, 9vw, 96px);
@@ -214,6 +246,11 @@
             background-clip: text;
             color: transparent;
             margin-bottom: 24px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(155,81,224,0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(155,81,224,0.6)); }
         }
         .about-sub {
             font-size: 18px;
@@ -222,15 +259,31 @@
             margin: 0 auto 40px;
         }
 
-        /* Mission Statement */
+        /* Mission Section */
         .mission-section {
-            background: rgba(255,255,255,0.02);
+            background: linear-gradient(135deg, rgba(155,81,224,0.1), rgba(242,153,74,0.05));
             border-radius: 48px;
             padding: 60px 48px;
             margin: 40px 0 60px;
             text-align: center;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(155,81,224,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .mission-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(155,81,224,0.05) 0%, transparent 70%);
+            animation: rotateBg 20s linear infinite;
+        }
+        @keyframes rotateBg {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         .mission-quote {
             font-size: clamp(24px, 4vw, 40px);
@@ -242,37 +295,54 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            position: relative;
+            z-index: 1;
         }
         .mission-sub {
             color: #9AA2C5;
             margin-top: 24px;
             font-size: 16px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Stats Grid */
+        /* Stats Grid - Animated */
         .stats-grid {
             display: flex;
             justify-content: space-between;
-            gap: 40px;
+            gap: 30px;
             margin: 60px 0;
             flex-wrap: wrap;
         }
         .stat-card {
             flex: 1;
             text-align: center;
-            background: rgba(10,12,20,0.5);
+            background: linear-gradient(135deg, rgba(10,12,20,0.6), rgba(155,81,224,0.1));
             padding: 32px 20px;
             border-radius: 32px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(155,81,224,0.5);
+            box-shadow: 0 20px 40px rgba(155,81,224,0.2);
         }
         .stat-number-big {
-            font-size: 48px;
+            font-size: 52px;
             font-weight: 800;
-            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            background: linear-gradient(135deg, #FFF, #9B51E0, #F2994A);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            display: inline-block;
+            animation: countUp 1s ease-out;
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Values Section */
@@ -288,6 +358,16 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #9B51E0, #F2994A);
+            margin: 15px auto 0;
+            border-radius: 3px;
         }
         .values-grid {
             display: grid;
@@ -295,17 +375,18 @@
             gap: 30px;
         }
         .value-card {
-            background: rgba(12,15,28,0.6);
+            background: linear-gradient(135deg, rgba(12,15,28,0.6), rgba(155,81,224,0.05));
             backdrop-filter: blur(8px);
             border-radius: 32px;
             padding: 32px 24px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.08);
-            transition: all 0.3s;
+            transition: all 0.4s;
         }
         .value-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(155,81,224,0.4);
+            border-color: rgba(155,81,224,0.5);
+            box-shadow: 0 15px 35px rgba(155,81,224,0.2);
         }
         .value-icon {
             font-size: 48px;
@@ -315,17 +396,8 @@
             background-clip: text;
             color: transparent;
         }
-        .value-card h3 {
-            font-size: 22px;
-            margin-bottom: 12px;
-        }
-        .value-card p {
-            color: #B4BDE8;
-            line-height: 1.4;
-            font-size: 14px;
-        }
 
-        /* Timeline */
+        /* Timeline - Animated */
         .timeline-section {
             margin: 70px 0;
         }
@@ -342,8 +414,9 @@
             left: 15px;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 3px;
             background: linear-gradient(180deg, #9B51E0, #F2994A);
+            border-radius: 3px;
         }
         .timeline-item {
             position: relative;
@@ -351,10 +424,15 @@
             background: rgba(12,15,28,0.5);
             border-radius: 24px;
             backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+        .timeline-item:hover {
+            transform: translateX(10px);
+            background: rgba(155,81,224,0.1);
         }
         .timeline-year {
             position: absolute;
-            left: -40px;
+            left: -45px;
             top: 20px;
             background: linear-gradient(95deg, #9B51E0, #F2994A);
             width: 50px;
@@ -365,24 +443,18 @@
             justify-content: center;
             font-weight: 800;
             font-size: 14px;
-        }
-        .timeline-item h3 {
-            font-size: 22px;
-            margin-bottom: 8px;
+            box-shadow: 0 0 20px rgba(155,81,224,0.5);
         }
 
-        /* Team Section */
+        /* Team Carousel */
         .team-section {
             margin: 70px 0;
         }
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 35px;
-            margin-top: 40px;
+        .swiper {
+            padding: 20px 10px 40px;
         }
-        .team-member {
-            background: rgba(12,15,28,0.6);
+        .swiper-slide {
+            background: linear-gradient(135deg, rgba(12,15,28,0.6), rgba(155,81,224,0.08));
             backdrop-filter: blur(8px);
             border-radius: 32px;
             padding: 32px 24px;
@@ -390,9 +462,9 @@
             border: 1px solid rgba(255,255,255,0.08);
             transition: all 0.3s;
         }
-        .team-member:hover {
+        .swiper-slide:hover {
             transform: translateY(-6px);
-            border-color: rgba(155,81,224,0.4);
+            border-color: rgba(155,81,224,0.5);
         }
         .member-avatar {
             width: 120px;
@@ -405,29 +477,50 @@
             margin: 0 auto 20px;
             font-size: 48px;
             color: white;
+            position: relative;
+            overflow: hidden;
         }
-        .team-member h3 {
-            font-size: 22px;
-            margin-bottom: 6px;
+        .member-avatar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2));
+            border-radius: 50%;
         }
-        .member-title {
+        .swiper-button-next, .swiper-button-prev {
             color: #9B51E0;
-            font-weight: 600;
-            margin-bottom: 12px;
         }
-        .member-bio {
-            color: #B4BDE8;
-            font-size: 14px;
-            line-height: 1.4;
+        .swiper-pagination-bullet {
+            background: #9B51E0;
+        }
+        .swiper-pagination-bullet-active {
+            background: #F2994A;
         }
 
-        /* CTA */
-        .cta-section {
-            text-align: center;
-            padding: 60px 20px;
+        /* Client Logos */
+        .clients-section {
+            margin: 70px 0;
+            padding: 40px 0;
             background: rgba(255,255,255,0.02);
-            border-radius: 64px;
-            margin: 40px 0 60px;
+            border-radius: 48px;
+        }
+        .logo-cloud {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .client-logo {
+            font-size: 32px;
+            color: rgba(255,255,255,0.6);
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+        .client-logo:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            color: #9B51E0;
         }
 
         .footer {
@@ -447,20 +540,14 @@
             margin-left: 20px;
         }
         .footer-links a:hover { color: #F2994A; transform: translateY(-5px); }
-        .copyright {
-            font-size: 13px;
-            color: #6E789E;
-        }
 
         @media (max-width: 768px) {
             .container-custom { padding: 0 16px; }
             .glass-nav { background: rgba(10,12,25,0.85); }
             .timeline { padding-left: 20px; }
             .timeline-year { left: -30px; width: 40px; height: 40px; font-size: 11px; }
-            .toast-message { white-space: normal; width: 90%; text-align: center; }
             .stats-grid { flex-direction: column; }
             .footer { flex-direction: column; gap: 20px; text-align: center; }
-            .footer-links a { margin: 0 10px; }
         }
     </style>
 </head>
@@ -479,7 +566,7 @@
                 <img id="dynamicLogo" class="logo-img" src="skr.png" alt="CREWHOLIC">
                 <span style="font-size:22px; font-weight:800; background:linear-gradient(135deg,#FFF,#9B51E0,#F2994A); -webkit-background-clip:text; background-clip:text; color:transparent;">CREWHOLIC</span>
             </div>
-            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <i class="fas fa-bars fs-2" style="color:white;"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
@@ -489,8 +576,6 @@
                     <li class="nav-item"><a href="portfolio.html" class="nav-btn-glow"><i class="fas fa-layer-group me-1"></i> Portfolio</a></li>
                     <li class="nav-item"><a href="about.html" class="nav-btn-glow"><i class="fas fa-users me-1"></i> About</a></li>
                     <li class="nav-item"><a href="contact.html" class="nav-btn-glow"><i class="fas fa-envelope me-1"></i> Contact</a></li>
-                    
-                    <!-- Auth Section -->
                     <li class="nav-item" id="authSection">
                         <a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;">
                             <i class="fas fa-user-circle"></i> Login
@@ -501,57 +586,100 @@
         </div>
     </nav>
 
-    <div class="about-hero">
+    <!-- Hero Section -->
+    <div class="about-hero" data-aos="fade-up">
         <div class="hero-badge"><i class="fas fa-users"></i> THE CREW BEHIND THE FUSION</div>
         <h1 class="about-main-title">We Are CREWHOLIC</h1>
         <p class="about-sub">A collective of visionaries, engineers, and creators united by one mission: to fuse creativity with cutting-edge technology.</p>
     </div>
 
-    <div class="mission-section">
+    <!-- Mission Section -->
+    <div class="mission-section" data-aos="zoom-in" data-aos-duration="1000">
         <div class="mission-quote">
             "We don't just build campaigns — we engineer digital revolutions that redefine what's possible."
         </div>
         <div class="mission-sub">— Founded in 2020 with a vision to transform the digital agency landscape</div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-number-big">150+</div><div>Projects Delivered</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Global Footprint</div></div>
-        <div class="stat-card"><div class="stat-number-big">98%</div><div>Client Retention</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Year over Year</div></div>
-        <div class="stat-card"><div class="stat-number-big">25+</div><div>Industry Awards</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">Innovation & Design</div></div>
-        <div class="stat-card"><div class="stat-number-big">4.8x</div><div>Avg ROI Delivered</div><div style="color:#8F99CC; font-size:13px; margin-top:8px;">For Our Clients</div></div>
+    <!-- Stats Grid -->
+    <div class="stats-grid" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card">
+            <div class="stat-number-big" data-count="150">150+</div>
+            <div>Projects Delivered</div>
+            <div style="color:#8F99CC; font-size:13px; margin-top:8px;">Global Footprint</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number-big" data-count="98">98%</div>
+            <div>Client Retention</div>
+            <div style="color:#8F99CC; font-size:13px; margin-top:8px;">Year over Year</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number-big" data-count="25">25+</div>
+            <div>Industry Awards</div>
+            <div style="color:#8F99CC; font-size:13px; margin-top:8px;">Innovation & Design</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number-big" data-count="48">4.8x</div>
+            <div>Avg ROI Delivered</div>
+            <div style="color:#8F99CC; font-size:13px; margin-top:8px;">For Our Clients</div>
+        </div>
     </div>
 
-    <div class="values-section">
+    <!-- Values Section -->
+    <div class="values-section" data-aos="fade-right">
         <div class="section-title">Our Core Values</div>
         <div class="values-grid">
-            <div class="value-card"><div class="value-icon"><i class="fas fa-fire"></i></div><h3>Fusion Mindset</h3><p>We blend creativity, data, and technology into seamless solutions that outperform expectations.</p></div>
-            <div class="value-card"><div class="value-icon"><i class="fas fa-chart-line"></i></div><h3>Radical Transparency</h3><p>Real-time reporting, honest communication, and measurable results — no hidden agendas.</p></div>
-            <div class="value-card"><div class="value-icon"><i class="fas fa-rocket"></i></div><h3>Bold Innovation</h3><p>We push boundaries, experiment fearlessly, and embrace emerging tech to give you the edge.</p></div>
-            <div class="value-card"><div class="value-icon"><i class="fas fa-handshake"></i></div><h3>Partnership First</h3><p>Your success is our success. We grow alongside our clients, celebrating every win together.</p></div>
+            <div class="value-card" data-aos="flip-left" data-aos-delay="100"><div class="value-icon"><i class="fas fa-fire"></i></div><h3>Fusion Mindset</h3><p>We blend creativity, data, and technology into seamless solutions that outperform expectations.</p></div>
+            <div class="value-card" data-aos="flip-left" data-aos-delay="200"><div class="value-icon"><i class="fas fa-chart-line"></i></div><h3>Radical Transparency</h3><p>Real-time reporting, honest communication, and measurable results — no hidden agendas.</p></div>
+            <div class="value-card" data-aos="flip-left" data-aos-delay="300"><div class="value-icon"><i class="fas fa-rocket"></i></div><h3>Bold Innovation</h3><p>We push boundaries, experiment fearlessly, and embrace emerging tech to give you the edge.</p></div>
+            <div class="value-card" data-aos="flip-left" data-aos-delay="400"><div class="value-icon"><i class="fas fa-handshake"></i></div><h3>Partnership First</h3><p>Your success is our success. We grow alongside our clients, celebrating every win together.</p></div>
         </div>
     </div>
 
-    <div class="timeline-section">
+    <!-- Timeline Section -->
+    <div class="timeline-section" data-aos="fade-up">
         <div class="section-title">Our Journey</div>
         <div class="timeline">
-            <div class="timeline-item"><div class="timeline-year">2020</div><h3>Foundation</h3><p>CREWHOLIC launched with a team of 5 visionaries, focusing on media and web innovation.</p></div>
-            <div class="timeline-item"><div class="timeline-year">2021</div><h3>Fusion Lab</h3><p>Expanded into immersive events and XR experiences, earning first industry awards.</p></div>
-            <div class="timeline-item"><div class="timeline-year">2023</div><h3>Global Scale</h3><p>Opened offices in NYC, London & Singapore, serving 150+ clients worldwide.</p></div>
-            <div class="timeline-item"><div class="timeline-year">2025</div><h3>Web3 Dominance</h3><p>Launched proprietary AI analytics suite & blockchain solutions, redefining digital experiences.</p></div>
+            <div class="timeline-item" data-aos="fade-right" data-aos-delay="100"><div class="timeline-year">2020</div><h3>Foundation</h3><p>CREWHOLIC launched with a team of 5 visionaries, focusing on media and web innovation.</p></div>
+            <div class="timeline-item" data-aos="fade-right" data-aos-delay="200"><div class="timeline-year">2021</div><h3>Fusion Lab</h3><p>Expanded into immersive events and XR experiences, earning first industry awards.</p></div>
+            <div class="timeline-item" data-aos="fade-right" data-aos-delay="300"><div class="timeline-year">2023</div><h3>Global Scale</h3><p>Opened offices in NYC, London & Singapore, serving 150+ clients worldwide.</p></div>
+            <div class="timeline-item" data-aos="fade-right" data-aos-delay="400"><div class="timeline-year">2025</div><h3>Web3 Dominance</h3><p>Launched proprietary AI analytics suite & blockchain solutions, redefining digital experiences.</p></div>
         </div>
     </div>
 
-    <div class="team-section">
+    <!-- Team Carousel Section -->
+    <div class="team-section" data-aos="fade-up">
         <div class="section-title">Meet The Core Crew</div>
-        <div class="team-grid">
-            <div class="team-member"><div class="member-avatar"><i class="fas fa-user-astronaut"></i></div><h3>Alex Rivera</h3><div class="member-title">CEO & Fusion Architect</div><div class="member-bio">15+ years leading digital transformations. Passionate about merging AI with human creativity.</div></div>
-            <div class="team-member"><div class="member-avatar"><i class="fas fa-chart-simple"></i></div><h3>Jordan Lee</h3><div class="member-title">Chief Strategy Officer</div><div class="member-bio">Data-driven growth expert behind 30+ unicorn marketing strategies.</div></div>
-            <div class="team-member"><div class="member-avatar"><i class="fas fa-cube"></i></div><h3>Samira Khan</h3><div class="member-title">Creative Director, Web3</div><div class="member-bio">Pioneering 3D web experiences and immersive metaverse installations.</div></div>
-            <div class="team-member"><div class="member-avatar"><i class="fas fa-calendar-star"></i></div><h3>Marcus Chen</h3><div class="member-title">Head of Events</div><div class="member-bio">Architect of hybrid experiences that blend physical and digital realms seamlessly.</div></div>
+        <div class="swiper teamSwiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-user-astronaut"></i></div><h3>Alex Rivera</h3><div class="member-title">CEO & Fusion Architect</div><div class="member-bio">15+ years leading digital transformations. Passionate about merging AI with human creativity.</div></div>
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-chart-simple"></i></div><h3>Jordan Lee</h3><div class="member-title">Chief Strategy Officer</div><div class="member-bio">Data-driven growth expert behind 30+ unicorn marketing strategies.</div></div>
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-cube"></i></div><h3>Samira Khan</h3><div class="member-title">Creative Director, Web3</div><div class="member-bio">Pioneering 3D web experiences and immersive metaverse installations.</div></div>
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-calendar-star"></i></div><h3>Marcus Chen</h3><div class="member-title">Head of Events</div><div class="member-bio">Architect of hybrid experiences that blend physical and digital realms seamlessly.</div></div>
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-palette"></i></div><h3>Elena Vasquez</h3><div class="member-title">Creative Director</div><div class="member-bio">Award-winning designer behind global brand identities.</div></div>
+                <div class="swiper-slide"><div class="member-avatar"><i class="fas fa-microchip"></i></div><h3>David Kim</h3><div class="member-title">Tech Lead, AI</div><div class="member-bio">Leading our machine learning and automation innovations.</div></div>
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 
-    <div class="cta-section">
+    <!-- Clients Section -->
+    <div class="clients-section" data-aos="fade-up">
+        <div class="section-title">Trusted By Industry Leaders</div>
+        <div class="logo-cloud">
+            <i class="fab fa-microsoft client-logo"></i>
+            <i class="fab fa-google client-logo"></i>
+            <i class="fab fa-amazon client-logo"></i>
+            <i class="fab fa-apple client-logo"></i>
+            <i class="fab fa-salesforce client-logo"></i>
+            <i class="fab fa-adobe client-logo"></i>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section text-center py-5" data-aos="zoom-in">
         <h2 style="font-size: 32px; margin-bottom: 16px;">Join the Fusion Revolution</h2>
         <p style="color: #B4BDE8; max-width: 600px; margin: 0 auto;">Let's create something extraordinary together.</p>
         <button class="btn-giant mt-4" id="aboutCtaBtn">Become Part of the Crew <i class="fas fa-arrow-right"></i></button>
@@ -570,8 +698,39 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    // Initialize Swiper
+    const swiper = new Swiper('.teamSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+        }
+    });
+
     // ========== 3D SCENE ==========
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
@@ -705,6 +864,29 @@
         }
     }
 
+    // Count-up Animation
+    function animateNumbers() {
+        const stats = document.querySelectorAll('.stat-number-big');
+        stats.forEach(stat => {
+            const target = stat.innerText.replace('+', '').replace('%', '').replace('x', '');
+            const targetNum = parseFloat(target);
+            if (!isNaN(targetNum) && stat.getAttribute('data-counted') !== 'true') {
+                stat.setAttribute('data-counted', 'true');
+                let current = 0;
+                const increment = targetNum / 50;
+                const interval = setInterval(() => {
+                    current += increment;
+                    if (current >= targetNum) {
+                        stat.innerText = targetNum + (stat.innerText.includes('+') ? '+' : stat.innerText.includes('%') ? '%' : stat.innerText.includes('x') ? 'x' : '');
+                        clearInterval(interval);
+                    } else {
+                        stat.innerText = Math.floor(current) + (stat.innerText.includes('+') ? '+' : stat.innerText.includes('%') ? '%' : stat.innerText.includes('x') ? 'x' : '');
+                    }
+                }, 30);
+            }
+        });
+    }
+
     // ========== BUTTONS ==========
     document.getElementById('aboutCtaBtn')?.addEventListener('click', () => showMessage('🚀 Join the fusion revolution! Let\'s discuss your vision. Contact us today.'));
     document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'home.html');
@@ -712,8 +894,9 @@
     
     // ========== INITIALIZE ==========
     loadCurrentUser();
+    setTimeout(animateNumbers, 500);
     
-    console.log('✨ CREWHOLIC About Page Loaded — 3D animated, team profiles, values, timeline');
+    console.log('✨ CREWHOLIC About Page Loaded — Enhanced with AOS animations, Swiper carousel, and count-up stats');
 </script>
 </body>
 </html>

@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -88,6 +90,29 @@
             background: radial-gradient(ellipse at 50% 30%, rgba(10, 15, 30, 0.7) 0%, #010105 95%);
             pointer-events: none;
             z-index: 1;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.08; }
+            90% { opacity: 0.08; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
         .container-custom {
@@ -192,6 +217,12 @@
             letter-spacing: 2px;
             color: #C0AAFF;
             margin-bottom: 24px;
+            backdrop-filter: blur(4px);
+            animation: badgePulse 2s infinite;
+        }
+        @keyframes badgePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(155,81,224,0.5); }
         }
         .contact-main-title {
             font-size: clamp(48px, 9vw, 96px);
@@ -202,6 +233,11 @@
             background-clip: text;
             color: transparent;
             margin-bottom: 24px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(155,81,224,0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(155,81,224,0.6)); }
         }
         .contact-sub {
             font-size: 18px;
@@ -223,15 +259,24 @@
 
         /* Contact Form */
         .contact-form-container {
-            background: rgba(12, 15, 28, 0.6);
+            background: linear-gradient(135deg, rgba(12, 15, 28, 0.6), rgba(155,81,224,0.05));
             backdrop-filter: blur(12px);
             border-radius: 40px;
             padding: 40px;
             border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s;
+        }
+        .contact-form-container:hover {
+            border-color: rgba(155,81,224,0.4);
+            box-shadow: 0 20px 40px rgba(155,81,224,0.1);
         }
         .contact-form-container h2 {
             font-size: 28px;
             margin-bottom: 8px;
+            background: linear-gradient(135deg, #FFF, #B5C0FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         .form-group {
             margin-bottom: 24px;
@@ -243,10 +288,14 @@
             font-weight: 500;
             color: #C5CDF0;
         }
+        .form-group label i {
+            margin-right: 8px;
+            color: #9B51E0;
+        }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             background: #1A1D2A;
-            border: 1px solid #2C3040;
+            border: 1.5px solid #2C3040;
             border-radius: 20px;
             padding: 14px 18px;
             font-family: 'Inter', sans-serif;
@@ -257,7 +306,7 @@
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #9B51E0;
-            box-shadow: 0 0 0 2px rgba(155,81,224,0.3);
+            box-shadow: 0 0 0 3px rgba(155,81,224,0.2);
         }
         .submit-btn {
             background: linear-gradient(95deg, #9B51E0, #F2994A);
@@ -270,6 +319,24 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .submit-btn:active::after {
+            width: 300px;
+            height: 300px;
         }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(155,81,224,0.4); }
 
@@ -277,10 +344,10 @@
         .contact-info {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 25px;
         }
         .info-card {
-            background: rgba(12, 15, 28, 0.6);
+            background: linear-gradient(135deg, rgba(12, 15, 28, 0.6), rgba(155,81,224,0.05));
             backdrop-filter: blur(12px);
             border-radius: 32px;
             padding: 28px;
@@ -290,6 +357,7 @@
         .info-card:hover {
             transform: translateY(-5px);
             border-color: rgba(155,81,224,0.4);
+            box-shadow: 0 15px 35px rgba(155,81,224,0.15);
         }
         .info-icon {
             font-size: 40px;
@@ -312,8 +380,9 @@
         .info-card a:hover { color: #F2994A; }
         .social-row {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .social-icon {
             width: 44px;
@@ -342,19 +411,34 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #9B51E0, #F2994A);
+            margin: 15px auto 0;
+            border-radius: 3px;
         }
         .offices-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 30px;
         }
         .office-card {
-            background: rgba(12, 15, 28, 0.5);
+            background: linear-gradient(135deg, rgba(12, 15, 28, 0.5), rgba(155,81,224,0.05));
             backdrop-filter: blur(8px);
             border-radius: 28px;
             padding: 28px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .office-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(155,81,224,0.4);
         }
         .office-card i {
             font-size: 42px;
@@ -369,13 +453,42 @@
             margin-bottom: 8px;
         }
 
+        /* Map Section */
+        .map-section {
+            margin: 50px 0;
+        }
+        .map-container {
+            background: rgba(12, 15, 28, 0.5);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(155,81,224,0.2);
+        }
+        .map-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #1a1a3a, #0a0a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #B4BDE8;
+        }
+        .map-placeholder i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
         /* FAQ / Chat CTA */
         .chat-cta {
             text-align: center;
             padding: 50px 20px;
-            background: rgba(255,255,255,0.02);
+            background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(155,81,224,0.05));
             border-radius: 48px;
             margin: 40px 0 60px;
+            border: 1px solid rgba(155,81,224,0.1);
         }
         .btn-chat {
             background: transparent;
@@ -389,7 +502,45 @@
             transition: all 0.3s;
             margin-top: 20px;
         }
-        .btn-chat:hover { background: rgba(155,81,224,0.2); border-color: #9B51E0; }
+        .btn-chat:hover { background: rgba(155,81,224,0.2); border-color: #9B51E0; transform: translateY(-2px); }
+
+        /* User Menu */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 15px;
+            background: rgba(155,81,224,0.2);
+            border-radius: 60px;
+            cursor: pointer;
+            border: 1px solid rgba(155,81,224,0.3);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #9B51E0, #F2994A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .dropdown-menu-custom {
+            background: rgba(15,18,40,0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+        }
+        .dropdown-menu-custom a {
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .dropdown-menu-custom a:hover { background: rgba(155,81,224,0.3); }
 
         .footer {
             display: flex;
@@ -419,11 +570,14 @@
             .toast-message { white-space: normal; width: 90%; text-align: center; }
             .footer { flex-direction: column; gap: 20px; text-align: center; }
             .footer-links a { margin: 0 10px; }
+            .contact-form-container { padding: 25px; }
+            .info-card { padding: 20px; }
         }
     </style>
 </head>
 <body>
 
+<div class="particles" id="particles"></div>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-follower" id="cursorFollower"></div>
 <div class="cursor-glow" id="cursorGlow"></div>
@@ -437,7 +591,7 @@
                 <img id="dynamicLogo" class="logo-img" src="skr.png" alt="CREWHOLIC">
                 <span style="font-size:22px; font-weight:800; background:linear-gradient(135deg,#FFF,#9B51E0,#F2994A); -webkit-background-clip:text; background-clip:text; color:transparent;">CREWHOLIC</span>
             </div>
-            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <i class="fas fa-bars fs-2" style="color:white;"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
@@ -447,8 +601,6 @@
                     <li class="nav-item"><a href="portfolio.html" class="nav-btn-glow"><i class="fas fa-layer-group me-1"></i> Portfolio</a></li>
                     <li class="nav-item"><a href="about.html" class="nav-btn-glow"><i class="fas fa-users me-1"></i> About</a></li>
                     <li class="nav-item"><a href="contact.html" class="nav-btn-glow"><i class="fas fa-envelope me-1"></i> Contact</a></li>
-                    
-                    <!-- Auth Section -->
                     <li class="nav-item" id="authSection">
                         <a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;">
                             <i class="fas fa-user-circle"></i> Login
@@ -459,7 +611,7 @@
         </div>
     </nav>
 
-    <div class="contact-hero">
+    <div class="contact-hero" data-aos="fade-up">
         <div class="hero-badge"><i class="fas fa-comment-dots"></i> GET IN TOUCH</div>
         <h1 class="contact-main-title">Let's Connect &<br>Create Fusion</h1>
         <p class="contact-sub">Ready to dominate your market? Our crew is just a message away. Tell us about your vision.</p>
@@ -467,30 +619,30 @@
 
     <div class="contact-grid">
         <!-- Contact Form -->
-        <div class="contact-form-container">
-            <h2>Send a Message</h2>
+        <div class="contact-form-container" data-aos="fade-right">
+            <h2><i class="fas fa-paper-plane"></i> Send a Message</h2>
             <p style="color:#9AA2C5; margin-bottom: 28px;">We'll get back within 24 hours.</p>
             <form id="contactForm">
                 <div class="form-group">
-                    <label>Full Name *</label>
+                    <label><i class="fas fa-user"></i> Full Name *</label>
                     <input type="text" id="contactName" required placeholder="Alex Rivera">
                 </div>
                 <div class="form-group">
-                    <label>Email Address *</label>
+                    <label><i class="fas fa-envelope"></i> Email Address *</label>
                     <input type="email" id="contactEmail" required placeholder="hello@crewholic.com">
                 </div>
                 <div class="form-group">
-                    <label>Service Interest</label>
+                    <label><i class="fas fa-tag"></i> Service Interest</label>
                     <select id="contactService">
-                        <option>Media Dominance</option>
-                        <option>Growth Marketing</option>
-                        <option>Immersive Events</option>
-                        <option>Web3 & Development</option>
+                        <option>Web Development</option>
+                        <option>Digital Marketing</option>
+                        <option>Equipment Rental</option>
+                        <option>Event Management</option>
                         <option>Custom Solution</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Message *</label>
+                    <label><i class="fas fa-comment"></i> Message *</label>
                     <textarea rows="4" id="contactMessage" placeholder="Tell us about your project..."></textarea>
                 </div>
                 <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Send Message</button>
@@ -498,18 +650,20 @@
         </div>
 
         <!-- Contact Info Cards -->
-        <div class="contact-info">
+        <div class="contact-info" data-aos="fade-left">
             <div class="info-card">
                 <div class="info-icon"><i class="fas fa-envelope"></i></div>
                 <h3>Email Us</h3>
                 <p><a href="mailto:hello@crewholic.com">hello@crewholic.com</a></p>
                 <p><a href="mailto:partners@crewholic.com">partners@crewholic.com</a> (Partnerships)</p>
+                <p><a href="mailto:support@crewholic.com">support@crewholic.com</a> (Support)</p>
             </div>
             <div class="info-card">
                 <div class="info-icon"><i class="fas fa-phone-alt"></i></div>
                 <h3>Call Us</h3>
-                <p>+1 (555) 273-2025</p>
+                <p><strong>+1 (555) 273-2025</strong></p>
                 <p>Mon-Fri: 9AM - 8PM EST</p>
+                <p>Sat-Sun: 10AM - 4PM EST</p>
             </div>
             <div class="info-card">
                 <div class="info-icon"><i class="fas fa-hashtag"></i></div>
@@ -519,27 +673,44 @@
                     <div class="social-icon" data-social="instagram"><i class="fab fa-instagram"></i></div>
                     <div class="social-icon" data-social="twitter"><i class="fab fa-x-twitter"></i></div>
                     <div class="social-icon" data-social="behance"><i class="fab fa-behance"></i></div>
+                    <div class="social-icon" data-social="youtube"><i class="fab fa-youtube"></i></div>
                 </div>
             </div>
             <div class="info-card">
                 <div class="info-icon"><i class="fas fa-clock"></i></div>
                 <h3>24/7 Support</h3>
-                <p>Emergency support for active clients: <strong>support@crewholic.com</strong></p>
+                <p>Emergency support for active clients</p>
+                <p><strong>support@crewholic.com</strong></p>
+                <p><i class="fas fa-phone"></i> +1 (555) 273-2025 (ext 2)</p>
             </div>
         </div>
     </div>
 
-    <div class="offices-section">
+    <!-- Office Locations -->
+    <div class="offices-section" data-aos="fade-up">
         <div class="section-title">Our Global Hubs</div>
         <div class="offices-grid">
-            <div class="office-card"><i class="fas fa-city"></i><h4>New York</h4><p>350 5th Ave, Suite 4000<br>New York, NY 10118</p></div>
-            <div class="office-card"><i class="fas fa-landmark"></i><h4>London</h4><p>10 Queen Street Place<br>London, EC4R 1BE</p></div>
-            <div class="office-card"><i class="fas fa-tower-broadcast"></i><h4>Singapore</h4><p>Marina One, 5 Straits View<br>Singapore 018935</p></div>
-            <div class="office-card"><i class="fas fa-globe"></i><h4>Remote Central</h4><p>Serving clients worldwide<br>🌍 24/7 collaboration</p></div>
+            <div class="office-card"><i class="fas fa-city"></i><h4>New York</h4><p>350 5th Ave, Suite 4000<br>New York, NY 10118</p><small>🇺🇸 USA</small></div>
+            <div class="office-card"><i class="fas fa-landmark"></i><h4>London</h4><p>10 Queen Street Place<br>London, EC4R 1BE</p><small>🇬🇧 UK</small></div>
+            <div class="office-card"><i class="fas fa-tower-broadcast"></i><h4>Singapore</h4><p>Marina One, 5 Straits View<br>Singapore 018935</p><small>🇸🇬 Singapore</small></div>
+            <div class="office-card"><i class="fas fa-globe"></i><h4>Remote Central</h4><p>Serving clients worldwide<br>🌍 24/7 collaboration</p><small>🌐 Global</small></div>
         </div>
     </div>
 
-    <div class="chat-cta">
+    <!-- Map Section -->
+    <div class="map-section" data-aos="fade-up">
+        <div class="map-container">
+            <div class="map-placeholder">
+                <i class="fas fa-map-marked-alt"></i>
+                <h4>Global Presence Map</h4>
+                <p>Offices in NYC, London, Singapore — Serving Worldwide</p>
+                <small class="text-white-50">Interactive map coming soon</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat CTA -->
+    <div class="chat-cta" data-aos="zoom-in">
         <i class="fas fa-comments" style="font-size: 48px; background: linear-gradient(135deg, #9B51E0, #F2994A); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
         <h3 style="font-size: 26px; margin-top: 16px;">Live chat with our crew?</h3>
         <p style="color:#B4BDE8; max-width: 500px; margin: 12px auto;">Get instant answers about our services, pricing, or career opportunities.</p>
@@ -559,10 +730,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    const API_URL = "https://crewholic.onrender.com/api";
-    // ========== 3D SCENE ==========
-    const container = document.getElementById('canvas-container');
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 100
+});
+
+// Particles Background
+function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.width = `${Math.random() * 5 + 2}px`;
+        particle.style.height = particle.style.width;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        container.appendChild(particle);
+    }
+}
+createParticles();
+
+// ========== 3D SCENE ==========
+const container = document.getElementById('canvas-container');
+if(container) {
     const scene = new THREE.Scene();
     scene.background = null;
     scene.fog = new THREE.FogExp2(0x020208, 0.005);
@@ -592,21 +787,16 @@
     const wireKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.65, 0.4, 220, 36, 3, 4), new THREE.MeshBasicMaterial({ color: 0xdd99ff, wireframe: true, transparent: true, opacity: 0.3 }));
     scene.add(wireKnot);
 
-    const particlesCount = 4000;
+    const particlesCount = 3000;
     const particlesGeometry = new THREE.BufferGeometry();
     const posArray = new Float32Array(particlesCount * 3);
-    const colorsArray = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount; i++) {
         posArray[i*3] = (Math.random() - 0.5) * 70;
         posArray[i*3+1] = (Math.random() - 0.5) * 35;
         posArray[i*3+2] = (Math.random() - 0.5) * 50 - 20;
-        colorsArray[i*3] = Math.random() * 0.6 + 0.4;
-        colorsArray[i*3+1] = Math.random() * 0.4 + 0.5;
-        colorsArray[i*3+2] = Math.random() * 0.9 + 0.1;
     }
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
-    const particlesMat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending });
+    const particlesMat = new THREE.PointsMaterial({ size: 0.06, color: 0x9b51e0, transparent: true, opacity: 0.5 });
     const particles = new THREE.Points(particlesGeometry, particlesMat);
     scene.add(particles);
 
@@ -633,121 +823,150 @@
         camera.updateProjectionMatrix(); 
         renderer.setSize(window.innerWidth, window.innerHeight); 
     });
+}
 
-    // ========== CURSOR ==========
-    if(window.innerWidth >= 1024) {
-        const cursor = document.getElementById('cursor');
-        const follower = document.getElementById('cursorFollower');
-        const glow = document.getElementById('cursorGlow');
-        let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
-        document.addEventListener('mousemove', (e) => { 
-            mouseX = e.clientX; 
-            mouseY = e.clientY; 
-            if(cursor) cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
-            if(glow) glow.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
-        });
-        function animateCursor() { 
-            followerX += (mouseX - followerX) * 0.12; 
-            followerY += (mouseY - followerY) * 0.12; 
-            if(follower) follower.style.transform = `translate(${followerX}px, ${followerY}px)`; 
-            requestAnimationFrame(animateCursor); 
-        }
-        animateCursor();
+// ========== CURSOR ==========
+if(window.innerWidth >= 1024) {
+    const cursor = document.getElementById('cursor');
+    const follower = document.getElementById('cursorFollower');
+    const glow = document.getElementById('cursorGlow');
+    let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+    document.addEventListener('mousemove', (e) => { 
+        mouseX = e.clientX; 
+        mouseY = e.clientY; 
+        if(cursor) cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+        if(glow) glow.style.transform = `translate(${mouseX}px, ${mouseY}px)`; 
+    });
+    function animateCursor() { 
+        followerX += (mouseX - followerX) * 0.12; 
+        followerY += (mouseY - followerY) * 0.12; 
+        if(follower) follower.style.transform = `translate(${followerX}px, ${followerY}px)`; 
+        requestAnimationFrame(animateCursor); 
     }
+    animateCursor();
+}
 
-    // ========== UI HELPERS ==========
-    function showMessage(msg, isError = false) {
-        let existing = document.querySelector('.toast-message');
-        if(existing) existing.remove();
-        const toast = document.createElement('div');
-        toast.className = 'toast-message';
-        toast.textContent = msg;
-        if(isError) toast.style.background = '#8B2C2C';
-        document.body.appendChild(toast);
-        setTimeout(() => { toast.remove(); }, 2800);
+// ========== UI HELPERS ==========
+function showMessage(msg, isError = false) {
+    let existing = document.querySelector('.toast-message');
+    if(existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = msg;
+    if(isError) toast.style.background = '#8B2C2C';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 2800);
+}
+
+// ========== AUTHENTICATION ==========
+let currentUser = null;
+
+function loadCurrentUser() {
+    const user = localStorage.getItem('user');
+    if (user) {
+        currentUser = JSON.parse(user);
+        updateAuthUI();
+    } else {
+        currentUser = null;
+        updateAuthUI();
     }
+}
 
-    // ========== AUTHENTICATION ==========
-    let currentUser = null;
+function updateAuthUI() {
+    const authSection = document.getElementById('authSection');
+    if (!authSection) return;
     
-    function loadCurrentUser() {
-        const user = localStorage.getItem('user');
-        if (user) {
-            currentUser = JSON.parse(user);
-            updateAuthUI();
-        } else {
-            currentUser = null;
-            updateAuthUI();
-        }
+    if (currentUser) {
+        const name = currentUser.name || currentUser.email?.split('@')[0] || 'User';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        authSection.innerHTML = `
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown">
+                    <div class="user-avatar">${initials}</div>
+                    <span class="user-name">${name.split(' ')[0]}</span>
+                    <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-custom">
+                    <li><a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        `;
+    } else {
+        authSection.innerHTML = `<a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;"><i class="fas fa-user-circle"></i> Login</a>`;
     }
-    
-    function updateAuthUI() {
-        const authSection = document.getElementById('authSection');
-        if (!authSection) return;
-        
-        if (currentUser) {
-            const name = currentUser.name || currentUser.email?.split('@')[0] || 'User';
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            authSection.innerHTML = `<div class="dropdown"><div class="user-menu" data-bs-toggle="dropdown" style="display:flex; align-items:center; gap:12px; padding:5px 15px; background:rgba(155,81,224,0.2); border-radius:60px; cursor:pointer;"><div style="width:32px; height:32px; background:linear-gradient(135deg,#9B51E0,#F2994A); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">${initials}</div><span style="font-weight:600; font-size:14px;">${name.split(' ')[0]}</span></div></div>`;
-        } else {
-            authSection.innerHTML = `<a href="login.html" class="btn btn-sm" style="background: linear-gradient(95deg, #9B51E0, #F2994A); padding: 8px 20px; border-radius: 60px; color: white; text-decoration: none;"><i class="fas fa-user-circle"></i> Login</a>`;
-        }
-    }
+}
 
-    // ========== CONTACT FORM ==========
-    const contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', async (e) => {
+function logout() {
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// ========== CONTACT FORM ==========
+const contactForm = document.getElementById('contactForm');
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const service = document.getElementById('contactService').value;
+    const message = document.getElementById('contactMessage').value.trim();
+    
+    if (!name || !email || !message) {
+        showMessage('Please fill all required fields', true);
+        return;
+    }
+    
+    const submitBtn = document.querySelector('.submit-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
     try {
-        const data = {
-            name: contactName.value,
-            email: contactEmail.value,
-            service: contactService.value,
-            message: contactMessage.value
-        };
-
-        const res = await fetch("https://crewholic.onrender.com/api/contact", {
+        const response = await fetch("https://crewholic.onrender.com/api/contact", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, service, message })
         });
-
-        const result = await res.json();
-
-        if (res.ok) {
-            showMessage("✅ Message sent successfully!");
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showMessage("✅ Message sent successfully! Our team will contact you soon.");
             contactForm.reset();
         } else {
             showMessage(result.msg || "❌ Failed to send message", true);
         }
-
     } catch (error) {
         console.error("Fetch Error:", error);
-        showMessage("⚠️ Server not responding", true);
+        showMessage("⚠️ Server not responding. Please try again later.", true);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
 });
-    // ========== BUTTONS ==========
-    document.getElementById('liveChatBtn')?.addEventListener('click', () => {
-        showMessage("💬 Live chat: A CREWHOLIC specialist is online. Type your question! (Demo mode — real chat available on request)");
+
+// ========== BUTTONS ==========
+document.getElementById('liveChatBtn')?.addEventListener('click', () => {
+    showMessage("💬 Live chat: A CREWHOLIC specialist is online. Type your question! (Demo mode)");
+});
+
+document.querySelectorAll('.social-icon').forEach(icon => {
+    icon.addEventListener('click', (e) => {
+        const social = icon.getAttribute('data-social');
+        showMessage(`🌐 Connect with us on ${social}. Follow for exclusive insights!`);
     });
-    
-    document.querySelectorAll('.social-icon').forEach(icon => {
-        icon.addEventListener('click', (e) => {
-            const social = icon.getAttribute('data-social');
-            showMessage(`🌐 Connect with us on ${social}. Follow for exclusive insights!`);
-        });
-    });
-    
-    document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'home.html');
-    document.querySelectorAll('.footer-links a, .social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC — coming soon!')));
-    
-    // ========== INITIALIZE ==========
-    loadCurrentUser();
-    
-    console.log('✨ CREWHOLIC Contact Page — 3D animated, contact form, live chat simulation ready');
+});
+
+document.getElementById('logoContainer')?.addEventListener('click', () => window.location.href = 'home.html');
+document.querySelectorAll('.footer-links a, .social-link').forEach(link => link.addEventListener('click', () => showMessage('🌐 Connect with CREWHOLIC — coming soon!')));
+
+// ========== INITIALIZE ==========
+loadCurrentUser();
+
+console.log('✨ CREWHOLIC Contact Page — Enhanced with AOS animations, global map, and improved UI');
 </script>
 </body>
 </html>
