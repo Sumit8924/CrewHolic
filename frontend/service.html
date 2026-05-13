@@ -605,6 +605,30 @@
 const API_URL = "https://crewholic-2.onrender.com/api";
 let currentUser = null;
 
+// ========== HELPER FUNCTION: Get Dashboard URL based on role ==========
+function getDashboardUrl() {
+    if (!currentUser) return 'login.html';
+    
+    const role = currentUser.role;
+    
+    // Role-based dashboard mapping
+    if (role === 'super_admin' || role === 'admin') {
+        return 'admin-dashboard.html';
+    } else if (role === 'rental_admin') {
+        return 'rental-admin.html';
+    } else if (role === 'finance_admin') {
+        return 'finance-dashboard.html';
+    } else if (role === 'webdev_admin') {
+        return 'web-admin.html';
+    } else if (role === 'marketing_admin') {
+        return 'marketing-admin.html';
+    } else if (role === 'event_admin') {
+        return 'event-admin.html';
+    } else {
+        return 'user-dashboard.html';
+    }
+}
+
 // ========== EQUIPMENT DATABASE ==========
 const equipmentInventory = {
     cameras: [
@@ -717,10 +741,12 @@ function updateAuthUI() {
                        currentUser.role === 'rental_admin' ||
                        currentUser.role === 'webdev_admin' ||
                        currentUser.role === 'marketing_admin' ||
-                       currentUser.role === 'event_admin';
+                       currentUser.role === 'event_admin' ||
+                       currentUser.role === 'finance_admin';
         
         const name = currentUser.name || currentUser.email?.split('@')[0] || 'User';
         const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const dashboardUrl = getDashboardUrl();
         
         authSection.innerHTML = `
             <div class="dropdown">
@@ -730,7 +756,7 @@ function updateAuthUI() {
                     <i class="fas fa-chevron-down" style="font-size: 12px; opacity: 0.7;"></i>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-custom">
-                    <li><a href="user-dashboard.html"><i class="fas fa-tachometer-alt"></i> My Dashboard</a></li>
+                    <li><a href="${dashboardUrl}"><i class="fas fa-tachometer-alt"></i> My Dashboard</a></li>
                     ${isAdmin ? `<li><a href="admin-dashboard.html"><i class="fas fa-user-shield"></i> Admin Panel</a></li>` : ''}
                     <li><hr class="dropdown-divider"></li>
                     <li><a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
