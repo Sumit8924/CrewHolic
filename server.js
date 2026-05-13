@@ -177,17 +177,14 @@ app.post('/api/register', async (req, res) => {
             password: hashedPassword
         });
         try {
-            const emailResult = await resend.emails.send({
-                from: "CREWHOLIC <onboarding@resend.dev>",
-                to: "srout2023@gift.edu.in",
-                subject: "🎉 Welcome to CREWHOLIC",
-                html: `
-                    <h2>Welcome ${name} 🚀</h2>
-                    <p>Your account has been successfully created.</p>
-                `
-            });
+                const emailResult = await resend.emails.send({
+                    from: "CREWHOLIC <onboarding@resend.dev>",
+                    to: "srout2023@gift.edu.in",
+                    subject: "TEST EMAIL 🚀",
+                    html: `<h2>Resend working</h2>`
+                });
 
-            console.log("✅ Resend result:", emailResult);
+                console.log("✅ Resend result:", emailResult);
 
         } catch (emailErr) {
             console.log("❌ Resend email failed:", emailErr);
