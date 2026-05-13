@@ -178,22 +178,22 @@ app.post('/api/register', async (req, res) => {
         });
 
         // Welcome Email
-try {
-    await resend.emails.send({
-        from: `"CREWHOLIC" <${EMAIL_USER}>`,
-        to: email,
-        subject: "🎉 Welcome to CREWHOLIC",
-        html: `
-            <h2>Welcome ${name} 🚀</h2>
-            <p>Your account has been successfully created.</p>
-        `
-    });
+        try {
+            await resend.emails.send({
+                from: "CREWHOLIC <onboarding@resend.dev>",
+                to: email,
+                subject: "🎉 Welcome to CREWHOLIC",
+                html: `
+                    <h2>Welcome ${name} 🚀</h2>
+                    <p>Your account has been successfully created.</p>
+                `
+            });
 
-    console.log("✅ Welcome email sent");
+            console.log("✅ Welcome email sent");
 
-} catch (emailErr) {
-    console.log("⚠️ Welcome email failed, but user registered:", emailErr.message);
-}
+        } catch (emailErr) {
+            console.log("⚠️ Welcome email failed:", emailErr.message);
+        }
 
         res.status(201).json({
             msg: "Registered successfully",
