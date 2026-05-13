@@ -179,7 +179,7 @@ app.post('/api/register', async (req, res) => {
         try {
             const emailResult = await resend.emails.send({
                 from: "CREWHOLIC <onboarding@resend.dev>",
-                to: "officialcrewholic@gmail.com",
+                to: "srout2023@gift.edu.in",
                 subject: "🎉 Welcome to CREWHOLIC",
                 html: `
                     <h2>Welcome ${name} 🚀</h2>
