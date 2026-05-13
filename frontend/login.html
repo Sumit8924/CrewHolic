@@ -433,7 +433,7 @@ function showMessage(message, isError = false) {
     }, 3000);
 }
 
-// Handle Login
+// Handle Login with Role-Based Redirection
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -444,6 +444,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         showMessage('Please fill in all fields', true);
         return;
     }
+    
+    // Show loading state on button
+    const submitBtn = document.querySelector('.btn-grad');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    submitBtn.disabled = true;
     
     try {
         const response = await fetch(`${API_URL}/login`, {
@@ -457,27 +463,61 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (response.ok && data.user) {
+            // Save user data
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
             sessionStorage.setItem('user', JSON.stringify(data.user));
-
-let redirectPage = "index.html";
-
-if (data.user.role === "super_admin") redirectPage = "admin-dashboard.html";
-else if (data.user.role === "rental_admin") redirectPage = "rental-dashboard.html";
-else if (data.user.role === "finance_admin") redirectPage = "finance-dashboard.html";
-else if (data.user.role === "webdev_admin") redirectPage = "webdev-dashboard.html";
-else if (data.user.role === "marketing_admin") redirectPage = "marketing-dashboard.html";
-else if (data.user.role === "event_admin") redirectPage = "event-dashboard.html";
-            const message = data.user.role === "admin" ? "Welcome Admin!" : "Login Successful!";
-
+            
+            // Role-based redirection
+            let redirectPage = "user-dashboard.html"; // Default for regular users
+            let roleTitle = "";
+            
+            // Check role and assign appropriate dashboard
+            if (data.user.role === "super_admin") {
+                redirectPage = "admin-dashboard.html";
+                roleTitle = "Super Admin";
+            } 
+            else if (data.user.role === "rental_admin") {
+                redirectPage = "rental-admin.html";
+                roleTitle = "Rental Admin";
+            }
+            else if (data.user.role === "finance_admin") {
+                redirectPage = "finance-dashboard.html";
+                roleTitle = "Finance Admin";
+            }
+            else if (data.user.role === "webdev_admin") {
+                redirectPage = "web-admin.html";
+                roleTitle = "Web Development Admin";
+            }
+            else if (data.user.role === "marketing_admin") {
+                redirectPage = "marketing-admin.html";
+                roleTitle = "Marketing Admin";
+            }
+            else if (data.user.role === "event_admin") {
+                redirectPage = "event-admin.html";
+                roleTitle = "Event Admin";
+            }
+            else if (data.user.role === "admin") {
+                redirectPage = "admin-dashboard.html";
+                roleTitle = "Admin";
+            }
+            else {
+                redirectPage = "user-dashboard.html";
+                roleTitle = "User";
+            }
+            
+            const message = `Welcome ${roleTitle}!`;
             showSuccessAndRedirect(message, data.user.name, redirectPage);
         } else {
             showMessage(data.msg || 'Login failed. Please check your credentials.', true);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     } catch (error) {
         console.error("Login error:", error);
         showMessage('Server error. Please try again later.', true);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
 });
 
@@ -514,9 +554,31 @@ document.getElementById('loginPassword').addEventListener('keypress', (e) => {
     }
 });
 
+// Check if already logged in
+function checkExistingSession() {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (user && token) {
+        const userData = JSON.parse(user);
+        let redirectPage = "user-dashboard.html";
+        
+        if (userData.role === "super_admin") redirectPage = "admin-dashboard.html";
+        else if (userData.role === "rental_admin") redirectPage = "rental-admin.html";
+        else if (userData.role === "finance_admin") redirectPage = "finance-dashboard.html";
+        else if (userData.role === "webdev_admin") redirectPage = "web-admin.html";
+        else if (userData.role === "marketing_admin") redirectPage = "marketing-admin.html";
+        else if (userData.role === "event_admin") redirectPage = "event-admin.html";
+        else if (userData.role === "admin") redirectPage = "admin-dashboard.html";
+        
+        window.location.href = redirectPage;
+    }
+}
+
 // Initialize
 window.addEventListener('load', () => {
     createParticles();
+    checkExistingSession();
 });
 </script>
 </body>

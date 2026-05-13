@@ -176,12 +176,10 @@ app.post('/api/register', async (req, res) => {
             email,
             password: hashedPassword
         });
-
-        // Welcome Email
         try {
-            await resend.emails.send({
+            const emailResult = await resend.emails.send({
                 from: "CREWHOLIC <onboarding@resend.dev>",
-                to: email,
+                to: "officialcrewholic@gmail.com",
                 subject: "🎉 Welcome to CREWHOLIC",
                 html: `
                     <h2>Welcome ${name} 🚀</h2>
@@ -189,10 +187,10 @@ app.post('/api/register', async (req, res) => {
                 `
             });
 
-            console.log("✅ Welcome email sent");
+            console.log("✅ Resend result:", emailResult);
 
         } catch (emailErr) {
-            console.log("⚠️ Welcome email failed:", emailErr.message);
+            console.log("❌ Resend email failed:", emailErr);
         }
 
         res.status(201).json({
