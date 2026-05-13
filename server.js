@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const { OAuth2Client } = require("google-auth-library");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -25,6 +26,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const MONGO_URI = process.env.MONGO_URI;
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "officialcrewholic@gmail.com";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // ================= BREVO API SETUP =================
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
@@ -40,19 +44,13 @@ async function sendEmail(to, subject, html) {
                 name: "CREWHOLIC",
                 email: BREVO_SENDER_EMAIL
             },
-            to: [
-                {
-                    email: to
-                }
-            ],
+            to: [{ email: to }],
             subject,
             htmlContent: html
         };
 
         const result = await emailApi.sendTransacEmail(sendSmtpEmail);
-
         console.log("✅ Email sent:", result);
-
         return result;
 
     } catch (err) {
@@ -72,7 +70,6 @@ mongoose.connect(MONGO_URI)
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
     });
-
 })
 .catch((err) => {
     console.log("❌ DB Error:", err);
@@ -88,6 +85,12 @@ const userSchema = new mongoose.Schema({
     },
 
     password: String,
+
+    authProvider: {
+        type: String,
+        enum: ["local", "google"],
+        default: "local"
+    },
 
     role: {
         type: String,
@@ -111,9 +114,7 @@ const User = mongoose.model("User", userSchema);
 async function createAdmin() {
     const adminEmail = "admin@crewholic.com";
 
-    const exist = await User.findOne({
-        email: adminEmail
-    });
+    const exist = await User.findOne({ email: adminEmail });
 
     if (!exist) {
         const hashed = await bcrypt.hash("admin123", 10);
@@ -122,6 +123,7 @@ async function createAdmin() {
             name: "Main Admin",
             email: adminEmail,
             password: hashed,
+            authProvider: "local",
             role: "super_admin"
         });
 
@@ -133,7 +135,7 @@ mongoose.connection.once("open", createAdmin);
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
-    res.send("🚀 Backend Running Successfully with Brevo API");
+    res.send("🚀 Backend Running Successfully with Brevo API + Google Login");
 });
 
 // ================= TEST EMAIL =================
@@ -261,27 +263,22 @@ app.post("/api/register", async (req, res) => {
         const newUser = await User.create({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            authProvider: "local"
         });
 
-        // Welcome email in background, signup does not wait
         sendEmail(
             email,
             "🎉 Welcome to CREWHOLIC",
             `
             <div style="font-family: Arial, sans-serif; background: #0a0a2a; padding: 30px; color: #fff;">
                 <div style="max-width: 600px; margin: auto; background: #111328; border-radius: 20px; padding: 30px; text-align: center;">
-                    
                     <h1 style="color: #9B51E0; margin-bottom: 10px;">
                         Welcome, ${name} 🚀
                     </h1>
                     
                     <p style="font-size: 16px; color: #ccc;">
                         Your account has been successfully created at <b style="color:#F2994A;">CREWHOLIC</b>.
-                    </p>
-
-                    <p style="font-size: 14px; color: #aaa; margin-top: 20px;">
-                        You are now ready to explore CREWHOLIC services.
                     </p>
 
                     <div style="margin: 30px 0;">
@@ -331,6 +328,99 @@ app.post("/api/register", async (req, res) => {
     }
 });
 
+// ================= GOOGLE LOGIN =================
+app.post("/api/auth/google", async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        if (!GOOGLE_CLIENT_ID) {
+            return res.status(500).json({
+                msg: "Google Client ID missing in backend environment"
+            });
+        }
+
+        if (!credential) {
+            return res.status(400).json({
+                msg: "Google credential missing"
+            });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            return res.status(400).json({
+                msg: "Google account email not found"
+            });
+        }
+
+        const name = payload.name || "Google User";
+        const email = payload.email;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            user = await User.create({
+                name,
+                email,
+                password: "",
+                authProvider: "google",
+                role: "user"
+            });
+
+            sendEmail(
+                email,
+                "🎉 Welcome to CREWHOLIC",
+                `
+                <div style="font-family: Arial, sans-serif; background: #0a0a2a; padding: 30px; color: #fff;">
+                    <div style="max-width: 600px; margin: auto; background: #111328; border-radius: 20px; padding: 30px; text-align: center;">
+                        <h1 style="color: #9B51E0;">Welcome, ${name} 🚀</h1>
+                        <p>Your Google login account has been created successfully.</p>
+                        <p style="font-size: 12px; color: #777;">CREWHOLIC Team 🚀</p>
+                    </div>
+                </div>
+                `
+            ).catch((err) => {
+                console.log("⚠️ Google welcome email failed:", err.response?.body || err.message);
+            });
+        } else if (!user.authProvider) {
+            user.authProvider = "local";
+            await user.save();
+        }
+
+        const token = jwt.sign(
+            {
+                id: user._id,
+                role: user.role
+            },
+            JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        res.json({
+            msg: "Google login successful",
+            user: {
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
+            token
+        });
+
+    } catch (err) {
+        console.log("GOOGLE LOGIN ERROR:", err.response?.data || err.message);
+
+        res.status(500).json({
+            msg: "Google login failed",
+            error: err.message
+        });
+    }
+});
+
 // ================= LOGIN =================
 app.post("/api/login", async (req, res) => {
     try {
@@ -341,6 +431,12 @@ app.post("/api/login", async (req, res) => {
         if (!user) {
             return res.status(404).json({
                 msg: "User not found"
+            });
+        }
+
+        if (user.authProvider === "google" && !user.password) {
+            return res.status(401).json({
+                msg: "This account uses Google login. Please sign in with Google."
             });
         }
 

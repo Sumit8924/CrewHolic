@@ -149,6 +149,17 @@
             color: white;
         }
 
+        .btn-google {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .btn-google:hover {
+            background: rgba(219, 68, 55, 0.8);
+            border-color: #DB4437;
+        }
+
         .switch-link {
             color: #F2994A;
             text-decoration: none;
@@ -325,6 +336,62 @@
         .forgot-link a:hover {
             color: #9B51E0;
         }
+
+        .social-login {
+            margin: 20px 0 15px;
+            text-align: center;
+        }
+
+        .social-login p {
+            color: #B4BDE8;
+            font-size: 13px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 28%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .social-login p::before {
+            left: 0;
+        }
+
+        .social-login p::after {
+            right: 0;
+        }
+
+        .google-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .google-btn:hover {
+            background: rgba(219, 68, 55, 0.8);
+            border-color: #DB4437;
+            transform: translateY(-2px);
+        }
+
+        .google-btn i {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -362,6 +429,13 @@
                         <button type="submit" class="btn-grad">Sign In <i class="fas fa-arrow-right ms-2"></i></button>
                     </form>
                     
+                    <div class="social-login">
+                        <p>Or continue with</p>
+                        <button type="button" class="google-btn" id="googleLoginBtn">
+                            <i class="fab fa-google"></i> Continue with Google
+                        </button>
+                    </div>
+                    
                     <hr class="divider">
                     
                     <div class="text-center mt-2">
@@ -373,9 +447,106 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Google OAuth 2.0 Library -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
 const API_URL = "https://crewholic-2.onrender.com/api";
+
+// Google OAuth Configuration
+const GOOGLE_CLIENT_ID = "558245818414-enstkh3b5cdrcvvdrms8njnvp7fhrch6.apps.googleusercontent.com"; // Replace with your Google OAuth Client ID
+
+// Initialize Google OAuth
+function initializeGoogleOAuth() {
+    if (typeof google !== 'undefined') {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+        
+        // Render the button (hidden, we trigger manually)
+        google.accounts.id.renderButton(
+            document.getElementById("googleLoginBtn"),
+            { theme: "filled_black", size: "large", width: "100%" }
+        );
+        
+        // Override click to handle our own logic
+        const googleBtn = document.getElementById("googleLoginBtn");
+        googleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            google.accounts.id.prompt(); // Show the One Tap prompt
+        });
+    } else {
+        console.error("Google Identity Services not loaded");
+        setTimeout(initializeGoogleOAuth, 500);
+    }
+}
+
+// Handle Google OAuth response
+async function handleGoogleCredentialResponse(response) {
+    const googleBtn = document.getElementById('googleLoginBtn');
+    const originalText = googleBtn.innerHTML;
+    googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+    googleBtn.disabled = true;
+    
+    try {
+        // Send the credential to your backend
+        const backendResponse = await fetch(`${API_URL}/auth/google`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                credential: response.credential,
+                client_id: GOOGLE_CLIENT_ID
+            })
+        });
+        
+        const data = await backendResponse.json();
+        
+        if (backendResponse.ok && data.user) {
+            // Save user data
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            sessionStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Role-based redirection
+            let redirectPage = "user-dashboard.html";
+            let roleTitle = "User";
+            
+            if (data.user.role === "super_admin" || data.user.role === "admin") {
+                redirectPage = "admin-dashboard.html";
+                roleTitle = "Admin";
+            } else if (data.user.role === "rental_admin") {
+                redirectPage = "rental-admin.html";
+                roleTitle = "Rental Admin";
+            } else if (data.user.role === "finance_admin") {
+                redirectPage = "finance-dashboard.html";
+                roleTitle = "Finance Admin";
+            } else if (data.user.role === "webdev_admin") {
+                redirectPage = "web-admin.html";
+                roleTitle = "Web Dev Admin";
+            } else if (data.user.role === "marketing_admin") {
+                redirectPage = "marketing-admin.html";
+                roleTitle = "Marketing Admin";
+            } else if (data.user.role === "event_admin") {
+                redirectPage = "event-admin.html";
+                roleTitle = "Event Admin";
+            }
+            
+            showSuccessAndRedirect(`Welcome ${roleTitle}!`, data.user.name, redirectPage);
+        } else {
+            throw new Error(data.msg || "Google authentication failed");
+        }
+    } catch (error) {
+        console.error("Google OAuth Error:", error);
+        showMessage(error.message || "Google Sign-In failed. Please try again.", true);
+        googleBtn.innerHTML = originalText;
+        googleBtn.disabled = false;
+    }
+}
 
 function showSuccessAndRedirect(message, userName, redirectUrl) {
     const overlay = document.createElement('div');
@@ -433,7 +604,7 @@ function showMessage(message, isError = false) {
     }, 3000);
 }
 
-// Handle Login with Role-Based Redirection
+// Handle Email/Password Login
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -445,7 +616,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         return;
     }
     
-    // Show loading state on button
     const submitBtn = document.querySelector('.btn-grad');
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
@@ -463,16 +633,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (response.ok && data.user) {
-            // Save user data
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
             sessionStorage.setItem('user', JSON.stringify(data.user));
             
-            // Role-based redirection
-            let redirectPage = "user-dashboard.html"; // Default for regular users
+            let redirectPage = "user-dashboard.html";
             let roleTitle = "";
             
-            // Check role and assign appropriate dashboard
             if (data.user.role === "super_admin") {
                 redirectPage = "admin-dashboard.html";
                 roleTitle = "Super Admin";
@@ -575,10 +742,11 @@ function checkExistingSession() {
     }
 }
 
-// Initialize
+// Initialize Google OAuth
 window.addEventListener('load', () => {
     createParticles();
     checkExistingSession();
+    initializeGoogleOAuth();
 });
 </script>
 </body>
