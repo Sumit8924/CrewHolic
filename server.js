@@ -20,19 +20,9 @@ app.use("/api/orders", orderRoutes);
 
 // ================= ENV VARIABLES =================
 const JWT_SECRET = process.env.JWT_SECRET;
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
 const MONGO_URI = process.env.MONGO_URI;
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ================= MAIL TRANSPORT =================
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASS
-    }
-});
 
 // 🔥 ADD THIS (VERY IMPORTANT)
 //transporter.verify((error, success) => {
